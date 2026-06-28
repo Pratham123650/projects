@@ -1,21 +1,21 @@
 :root {
   /* ---- Color tokens ---- */
-  --void: #05060d;
-  --void-soft: #0a0e1c;
-  --panel: rgba(255, 255, 255, 0.035);
-  --panel-hover: rgba(255, 255, 255, 0.065);
-  --line: rgba(255, 255, 255, 0.08);
-  --line-hot: rgba(110, 231, 255, 0.4);
+  --void: #080a0c;
+  --void-soft: #101512;
+  --panel: rgba(238, 232, 218, 0.045);
+  --panel-hover: rgba(238, 232, 218, 0.075);
+  --line: rgba(238, 232, 218, 0.1);
+  --line-hot: rgba(91, 207, 187, 0.38);
 
-  --ion: #6ee7ff;       /* primary HUD cyan */
-  --core: #6080ff;      /* core blue */
-  --signal: #8b5cf6;    /* violet */
-  --amber: #f0c060;     /* status/live accent */
+  --ion: #5bcfbb;       /* polished teal */
+  --core: #93a998;      /* muted sage */
+  --signal: #dc9d57;    /* copper */
+  --amber: #e8bd72;     /* warm status accent */
   --danger: #ff5d7a;
 
-  --text: #e9eefb;
-  --muted: #8392bd;
-  --muted-soft: #aab6d9;
+  --text: #f1ede3;
+  --muted: #9fa99f;
+  --muted-soft: #c3c8ba;
 
   --radius: 18px;
   --radius-sm: 10px;
@@ -71,7 +71,7 @@ img, svg { display: block; max-width: 100%; }
   100% { background-position: 0% 50%; }
 }
 
-::selection { background: rgba(110, 231, 255, 0.25); color: var(--text); }
+::selection { background: rgba(91, 207, 187, 0.25); color: var(--text); }
 
 ::-webkit-scrollbar { width: 10px; }
 ::-webkit-scrollbar-track { background: var(--void); }

@@ -34,9 +34,8 @@ export default function CursorGlow() {
     const move = (e) => {
       pos.x = e.clientX
       pos.y = e.clientY
-      gsap.to(dot, { x: pos.x, y: pos.y, duration: 0.08, ease: 'power2.out' })
     }
-    window.addEventListener('mousemove', move)
+    window.addEventListener('mousemove', move, { passive: true })
 
     let raf
     const tick = () => {
@@ -46,6 +45,7 @@ export default function CursorGlow() {
       auraPos.y += (pos.y - auraPos.y) * 0.12
       glowPos.x += (pos.x - glowPos.x) * 0.055
       glowPos.y += (pos.y - glowPos.y) * 0.055
+      gsap.set(dot, { x: pos.x, y: pos.y })
       gsap.set(ring, { x: ringPos.x, y: ringPos.y })
       gsap.set(aura, { x: auraPos.x, y: auraPos.y })
       gsap.set(glow, { x: glowPos.x, y: glowPos.y })
@@ -65,7 +65,7 @@ export default function CursorGlow() {
       gsap.to(dot, { scale: 0.48, opacity: 0.8, duration: 0.24, ease: 'power2.out' })
       gsap.to(ring, { scale: 1.72, rotate: 45, duration: 0.32, ease: 'power3.out' })
       gsap.to(aura, { scale: 1.12, opacity: 0.9, duration: 0.32, ease: 'power3.out' })
-      gsap.to(glow, { scale: 1.22, opacity: 0.72, duration: 0.36, ease: 'power2.out' })
+      gsap.to(glow, { scale: 1.1, opacity: 0.5, duration: 0.28, ease: 'power2.out' })
       gsap.to(label, { opacity: 1, y: 30, duration: 0.22, ease: 'power2.out' })
     }
     const onLeave = (e) => {
@@ -78,7 +78,7 @@ export default function CursorGlow() {
       gsap.to(dot, { scale: 1, opacity: 1, duration: 0.24, ease: 'power2.out' })
       gsap.to(ring, { scale: 1, rotate: 0, duration: 0.34, ease: 'power3.out' })
       gsap.to(aura, { scale: 1, opacity: 0.42, duration: 0.3, ease: 'power2.out' })
-      gsap.to(glow, { scale: 1, opacity: 0.4, duration: 0.34, ease: 'power2.out' })
+      gsap.to(glow, { scale: 1, opacity: 0.26, duration: 0.28, ease: 'power2.out' })
       gsap.to(label, { opacity: 0, y: 22, duration: 0.16, ease: 'power2.out' })
     }
     const onDown = () => {
