@@ -1,0 +1,57 @@
+.cursor-layer { position: fixed; inset: 0; pointer-events: none; z-index: 9999; }
+
+.cursor-dot {
+  position: absolute;
+  top: 0; left: 0;
+  width: 6px;
+  height: 6px;
+  background: var(--ion);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--ion);
+}
+
+.cursor-ring {
+  position: absolute;
+  top: 0; left: 0;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid rgba(110,231,255,0.45);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cursor-ring::before,
+.cursor-ring::after {
+  content: "";
+  position: absolute;
+  background: rgba(110,231,255,0.6);
+}
+.cursor-ring::before { width: 1px; height: 8px; top: -4px; left: 50%; transform: translateX(-50%); }
+.cursor-ring::after { width: 8px; height: 1px; left: -4px; top: 50%; transform: translateY(-50%); }
+
+.cursor-label {
+  font-size: 0.58rem;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--ion);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(28px);
+  position: absolute;
+}
+
+.cursor-glow {
+  position: absolute;
+  top: 0; left: 0;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(96,128,255,0.14), transparent 65%);
+  opacity: 0.55;
+}
+
+@media (pointer: coarse) {
+  .cursor-layer { display: none; }
+}
