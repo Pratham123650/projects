@@ -58,8 +58,8 @@ export default function Hero() {
               resume, see what I&apos;m working on, and get in touch.
             </p>
             <div className="cta-row">
-              <MagneticButton href="resume.pdf" target="_blank" className="btn btn-primary" data-cursor="view">
-                View Resume PDF
+              <MagneticButton href="#resume" className="btn btn-primary" data-cursor="view">
+                View Resume
               </MagneticButton>
               <MagneticButton href="https://github.com/Pratham123650" target="_blank" className="btn btn-secondary" data-cursor="visit">
                 GitHub
@@ -87,7 +87,7 @@ export default function Hero() {
             </div>
             <div className="mini-block">
               <h3 className="mono">What&apos;s on this site</h3>
-              <p>Projects, technical skills, background, and a direct resume download.</p>
+              <p>Projects, technical skills, background, and a resume snapshot.</p>
             </div>
             <div className="mini-block status-block">
               <h3 className="mono">System Status</h3>
