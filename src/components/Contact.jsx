@@ -22,7 +22,7 @@ export default function Contact() {
         <div className="contact-grid">
           {CONTACTS.map((c, i) => (
             <Reveal key={c.label} delay={i * 0.08}>
-              <TiltCard className="card contact-card" tiltAmount={8}>
+              <TiltCard className="card contact-card" tiltAmount={8} data-cursor="connect">
                 <div className="contact-icon">{c.icon}</div>
                 <h3 className="mono">{c.label}</h3>
                 <p>

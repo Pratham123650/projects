@@ -68,6 +68,15 @@ export default function Hero() {
                 LinkedIn
               </MagneticButton>
             </div>
+            <div className="hero-signal mono" aria-hidden="true">
+              <span>live signal</span>
+              <div className="signal-bars">
+                {Array.from({ length: 12 }, (_, i) => (
+                  <i key={i} style={{ '--i': i }} />
+                ))}
+              </div>
+              <span>availability open</span>
+            </div>
           </TiltCard>
         </motion.div>
 

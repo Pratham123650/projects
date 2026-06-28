@@ -43,7 +43,7 @@ export default function Projects() {
         <div className="projects-grid">
           {PROJECTS.map((p, i) => (
             <Reveal key={p.id} delay={i * 0.1}>
-              <TiltCard className="card project-card" tiltAmount={10}>
+              <TiltCard className="card project-card" tiltAmount={10} data-cursor="inspect">
                 <div className="project-number mono">{p.id}</div>
                 <h3 className="project-title">{p.title}</h3>
                 <p>{p.desc}</p>
