@@ -75,11 +75,11 @@ export default function CursorGlow() {
 
   return (
     <div className="cursor-layer" aria-hidden="true">
-      <div ref={glow} className="cursor-glow" />
-      <div ref={ring} className="cursor-ring">
-        <span ref={label} className="cursor-label mono" />
+      <div ref={glowRef} className="cursor-glow" />
+      <div ref={ringRef} className="cursor-ring">
+        <span ref={labelRef} className="cursor-label mono" />
       </div>
-      <div ref={dot} className="cursor-dot" />
+      <div ref={dotRef} className="cursor-dot" />
     </div>
   )
 }
