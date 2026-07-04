@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import Preloader from './components/Preloader.jsx'
+import Backdrop from './components/Backdrop.jsx'
 import Spotlight from './components/Spotlight.jsx'
 import ScrollProgress from './components/ScrollProgress.jsx'
 import Nav from './components/Nav.jsx'
@@ -19,7 +20,7 @@ export default function App() {
     <>
       <Preloader onDone={() => setReady(true)} />
 
-      <div className="aurora" aria-hidden="true" />
+      <Backdrop />
       <div className="grain" aria-hidden="true" />
       <Spotlight />
       <ScrollProgress />

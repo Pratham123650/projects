@@ -1,5 +1,11 @@
 import { useEffect, useState } from 'react'
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useSpring,
+  useReducedMotion,
+} from 'framer-motion'
 import Magnetic from './Magnetic.jsx'
 
 const ROLES = [
@@ -26,43 +32,88 @@ const EDGES = [
   [0, 1], [1, 2], [1, 3], [3, 4], [4, 5], [2, 5],
   [3, 8], [4, 6], [6, 7], [7, 9], [5, 9], [6, 8], [4, 7],
 ]
+/* Edges that carry animated "packets" after activation. */
+const STREAMS = [1, 3, 8, 10]
 
 function Topology({ ready }) {
   const reduce = useReducedMotion()
+  const px = useMotionValue(0)
+  const py = useMotionValue(0)
+  const sx = useSpring(px, { stiffness: 40, damping: 20, mass: 0.8 })
+  const sy = useSpring(py, { stiffness: 40, damping: 20, mass: 0.8 })
+
+  useEffect(() => {
+    if (reduce || window.matchMedia('(pointer: coarse)').matches) return
+    const onMove = (e) => {
+      px.set((e.clientX / window.innerWidth - 0.5) * -18)
+      py.set((e.clientY / window.innerHeight - 0.5) * -12)
+    }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => window.removeEventListener('pointermove', onMove)
+  }, [reduce, px, py])
+
   return (
     <div className="hero-topology" aria-hidden="true">
-      <svg viewBox="380 30 560 500" fill="none">
-        <defs>
-          <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0" stopColor="#d9bb84" stopOpacity="0.55" />
-            <stop offset="1" stopColor="#8fa7cd" stopOpacity="0.35" />
-          </linearGradient>
-        </defs>
-        {EDGES.map(([a, b], i) => (
-          <motion.line
-            key={i}
-            x1={NODES[a][0]} y1={NODES[a][1]}
-            x2={NODES[b][0]} y2={NODES[b][1]}
-            stroke="url(#edge)"
-            strokeWidth="0.8"
-            initial={reduce ? false : { pathLength: 0, opacity: 0 }}
-            animate={ready ? { pathLength: 1, opacity: 1 } : {}}
-            transition={{ duration: 1.4, delay: 0.4 + i * 0.09, ease: [0.22, 1, 0.36, 1] }}
-          />
-        ))}
-        {NODES.map(([x, y], i) => (
-          <motion.g
-            key={i}
-            initial={reduce ? false : { opacity: 0, scale: 0 }}
-            animate={ready ? { opacity: 1, scale: 1 } : {}}
-            transition={{ duration: 0.6, delay: 0.5 + i * 0.08 }}
-            style={{ transformOrigin: `${x}px ${y}px` }}
-          >
-            <circle cx={x} cy={y} r="10" fill="#d9bb84" opacity="0.06" />
-            <circle cx={x} cy={y} r="2.4" fill={i % 3 === 0 ? '#d9bb84' : '#8fa7cd'} opacity="0.85" />
-          </motion.g>
-        ))}
-      </svg>
+      <motion.div className="hero-topology-inner" style={reduce ? undefined : { x: sx, y: sy }}>
+        <svg viewBox="380 30 560 500" fill="none">
+          <defs>
+            <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stopColor="#d9bb84" stopOpacity="0.55" />
+              <stop offset="1" stopColor="#8fa7cd" stopOpacity="0.35" />
+            </linearGradient>
+          </defs>
+          {EDGES.map(([a, b], i) => (
+            <motion.line
+              key={i}
+              x1={NODES[a][0]} y1={NODES[a][1]}
+              x2={NODES[b][0]} y2={NODES[b][1]}
+              stroke="url(#edge)"
+              strokeWidth="0.8"
+              initial={reduce ? false : { pathLength: 0, opacity: 0 }}
+              animate={ready ? { pathLength: 1, opacity: 1 } : {}}
+              transition={{ duration: 1.4, delay: 0.4 + i * 0.09, ease: [0.22, 1, 0.36, 1] }}
+            />
+          ))}
+          {/* Data streams: dashed overlays whose dashes travel along the wire. */}
+          {!reduce && STREAMS.map((e, i) => {
+            const [a, b] = EDGES[e]
+            return (
+              <motion.line
+                key={`s${e}`}
+                className="topo-stream"
+                x1={NODES[a][0]} y1={NODES[a][1]}
+                x2={NODES[b][0]} y2={NODES[b][1]}
+                initial={{ opacity: 0 }}
+                animate={ready ? { opacity: 1 } : {}}
+                transition={{ duration: 1, delay: 2.2 + i * 0.3 }}
+                style={{ animationDelay: `${i * 1.1}s` }}
+              />
+            )
+          })}
+          {NODES.map(([x, y], i) => (
+            <motion.g
+              key={i}
+              initial={reduce ? false : { opacity: 0, scale: 0 }}
+              animate={ready ? { opacity: 1, scale: 1 } : {}}
+              transition={{ duration: 0.6, delay: 0.5 + i * 0.08 }}
+              style={{ transformOrigin: `${x}px ${y}px` }}
+            >
+              <circle cx={x} cy={y} r="10" fill="#d9bb84" opacity="0.06" />
+              <circle cx={x} cy={y} r="2.4" fill={i % 3 === 0 ? '#d9bb84' : '#8fa7cd'} opacity="0.85" />
+            </motion.g>
+          ))}
+        </svg>
+      </motion.div>
+
+      {/* One calibration sweep across the hero as it activates. */}
+      {!reduce && (
+        <motion.div
+          className="hero-scan"
+          initial={{ x: '-10vw', opacity: 0 }}
+          animate={ready ? { x: '110vw', opacity: [0, 0.9, 0.9, 0] } : {}}
+          transition={{ duration: 1.6, delay: 1.1, ease: [0.4, 0, 0.2, 1] }}
+        />
+      )}
     </div>
   )
 }
@@ -175,6 +226,11 @@ export default function Hero({ ready }) {
         <span className="mono">Scroll</span>
         <i />
       </div>
+
+      <motion.div className="hero-telemetry mono" aria-hidden="true" {...fade(1.5)}>
+        <span>sys · online</span>
+        <span>detroit, mi · 42.36°n / 83.07°w</span>
+      </motion.div>
     </header>
   )
 }

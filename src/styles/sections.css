@@ -1,8 +1,8 @@
 /* ==========================================================================
-   Ambient layers
+   Ambient layers — the environment behind the site
    ========================================================================== */
 
-.aurora {
+.backdrop {
   position: fixed;
   inset: 0;
   z-index: -2;
@@ -10,40 +10,80 @@
   pointer-events: none;
 }
 
-.aurora::before,
-.aurora::after {
-  content: '';
+/* Blueprint grid — faint engineering paper, parallax-drifting */
+.bd-grid {
   position: absolute;
-  width: 60vmax;
-  height: 60vmax;
-  border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.5;
+  inset: -10% 0;
+  background-image:
+    linear-gradient(rgba(205, 213, 230, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(205, 213, 230, 0.028) 1px, transparent 1px),
+    linear-gradient(rgba(205, 213, 230, 0.016) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(205, 213, 230, 0.016) 1px, transparent 1px);
+  background-size: 140px 140px, 140px 140px, 35px 35px, 35px 35px;
+  -webkit-mask-image: radial-gradient(120% 90% at 50% 20%, black 30%, transparent 78%);
+  mask-image: radial-gradient(120% 90% at 50% 20%, black 30%, transparent 78%);
   will-change: transform;
 }
 
-.aurora::before {
-  background: radial-gradient(circle at 30% 30%, rgba(217, 187, 132, 0.10), transparent 60%);
-  top: -25vmax;
-  left: -15vmax;
-  animation: aurora-a 26s ease-in-out infinite alternate;
+/* Warm champagne field — strongest at the top, recedes as you descend */
+.bd-warm {
+  position: absolute;
+  top: -30vmax;
+  left: -12vmax;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(217, 187, 132, 0.11), transparent 60%);
+  filter: blur(80px);
+  will-change: transform, opacity;
 }
 
-.aurora::after {
-  background: radial-gradient(circle at 70% 70%, rgba(143, 167, 205, 0.10), transparent 60%);
-  bottom: -30vmax;
-  right: -15vmax;
-  animation: aurora-b 32s ease-in-out infinite alternate;
+/* Cool dusk field — drifts the opposite way */
+.bd-cool {
+  position: absolute;
+  bottom: -34vmax;
+  right: -14vmax;
+  width: 72vmax;
+  height: 72vmax;
+  border-radius: 50%;
+  background: radial-gradient(circle at 65% 65%, rgba(143, 167, 205, 0.10), transparent 60%);
+  filter: blur(80px);
+  opacity: 0.55;
+  will-change: transform;
 }
 
-@keyframes aurora-a {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to   { transform: translate3d(8vmax, 6vmax, 0) scale(1.15); }
+/* Dusk takeover — the color story: light shifts warm → cool over the scroll */
+.bd-dusk {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(90% 70% at 50% 100%, rgba(143, 167, 205, 0.13), transparent 65%);
+  will-change: opacity;
 }
 
-@keyframes aurora-b {
-  from { transform: translate3d(0, 0, 0) scale(1.1); }
-  to   { transform: translate3d(-7vmax, -5vmax, 0) scale(1); }
+/* Depth specks — 18 slow drifting points, three depth tiers */
+.bd-specks { position: absolute; inset: 0; }
+
+.bd-specks i {
+  position: absolute;
+  width: 2px;
+  height: 2px;
+  border-radius: 50%;
+  background: rgba(205, 213, 230, 0.35);
+  animation: speck-drift calc(22s + var(--i) * 1.7s) ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+.bd-specks i:nth-child(3n)   { width: 1px; height: 1px; opacity: 0.5; }
+.bd-specks i:nth-child(4n)   { background: rgba(217, 187, 132, 0.4); }
+.bd-specks i:nth-child(2n+1) { animation-direction: alternate-reverse; }
+
+@keyframes speck-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to   { transform: translate3d(3vmin, -6vmin, 0); }
+}
+
+@media (max-width: 860px), (prefers-reduced-motion: reduce) {
+  .bd-specks { display: none; }
 }
 
 .grain {
@@ -82,7 +122,7 @@
 }
 
 /* ==========================================================================
-   Preloader
+   Preloader — boot sequence
    ========================================================================== */
 
 .preloader {
@@ -92,11 +132,32 @@
   display: grid;
   place-items: center;
   background: var(--ink);
+  will-change: transform, opacity;
 }
+
+.boot-frame {
+  position: absolute;
+  inset: clamp(1.2rem, 4vw, 2.6rem);
+  pointer-events: none;
+}
+
+.boot-corner {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--champagne-line);
+}
+
+.boot-corner--tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.boot-corner--tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.boot-corner--bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+.boot-corner--br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+.boot-core { width: min(360px, 82vw); }
 
 .preloader-word {
   font-family: var(--font-display);
-  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
   font-weight: 300;
   letter-spacing: 0.04em;
   display: flex;
@@ -108,9 +169,39 @@
   color: var(--champagne);
 }
 
-.preloader-line {
+.boot-lines {
+  margin-top: 1.6rem;
+  display: grid;
+  gap: 0.45rem;
+  min-height: 5.6rem;
+}
+
+.boot-line {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  letter-spacing: 0.1em;
+}
+
+.boot-tick { color: var(--champagne); font-size: 0.6rem; }
+
+.boot-ok {
+  margin-left: auto;
+  color: var(--champagne-hi);
+}
+
+.boot-ok::before { content: '['; color: var(--text-faint); }
+.boot-ok::after { content: ']'; color: var(--text-faint); }
+
+.boot-progress {
   margin-top: 1.4rem;
-  width: 160px;
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.preloader-line {
+  flex: 1;
   height: 1px;
   background: var(--line);
   overflow: hidden;
@@ -119,8 +210,16 @@
 .preloader-line i {
   display: block;
   height: 100%;
-  background: var(--champagne);
+  background: linear-gradient(90deg, var(--champagne), var(--dusk));
   transform-origin: left;
+  will-change: transform;
+}
+
+.boot-counter {
+  min-width: 3.2ch;
+  text-align: right;
+  color: var(--champagne);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ==========================================================================
@@ -282,6 +381,13 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-topology-inner {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
 }
 
 .hero-topology svg {
@@ -292,6 +398,49 @@
   height: auto;
   transform: translateY(-50%);
   opacity: 0.9;
+}
+
+/* Data packets traveling along select wires */
+.topo-stream {
+  stroke: var(--champagne);
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  stroke-dasharray: 3 90;
+  animation: stream-flow 3.4s linear infinite;
+}
+
+@keyframes stream-flow {
+  from { stroke-dashoffset: 186; }
+  to   { stroke-dashoffset: 0; }
+}
+
+/* Calibration sweep on activation */
+.hero-scan {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--champagne-line) 30%, var(--champagne-line) 70%, transparent);
+  box-shadow: 0 0 24px 1px rgba(217, 187, 132, 0.18);
+  will-change: transform, opacity;
+}
+
+/* Telemetry readouts pinned to hero corners */
+.hero-telemetry {
+  position: absolute;
+  bottom: 2.1rem;
+  left: var(--gutter);
+  right: var(--gutter);
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  letter-spacing: 0.16em;
+  color: var(--text-faint);
+}
+
+@media (max-width: 900px) {
+  .hero-telemetry { display: none; }
 }
 
 .hero-inner { position: relative; }
@@ -669,6 +818,24 @@
 }
 
 .project-card:hover .project-visual svg { transform: scale(1.05); }
+
+/* HUD crop-marks */
+.project-visual::before,
+.project-visual::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--champagne-line);
+  transition: opacity 0.4s var(--ease-out);
+  opacity: 0.55;
+}
+
+.project-visual::before { top: 8px; left: 8px; border-right: 0; border-bottom: 0; }
+.project-visual::after { bottom: 8px; right: 8px; border-left: 0; border-top: 0; }
+
+.project-card:hover .project-visual::before,
+.project-card:hover .project-visual::after { opacity: 1; }
 
 .project-card h3 {
   font-family: var(--font-display);
