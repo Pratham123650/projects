@@ -1,0 +1,55 @@
+/* ---------------------------------------------------------------------------
+   Design tokens — Pratham Patel portfolio
+   Palette: deep ink-blue base, champagne accent, dusk-blue secondary.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* Color */
+  --ink:        #0b0d12;
+  --ink-2:      #0e1118;
+  --raised:     #12151d;
+  --raised-2:   #171b25;
+  --glass:      rgba(19, 23, 32, 0.62);
+  --line:       rgba(205, 213, 230, 0.09);
+  --line-soft:  rgba(205, 213, 230, 0.055);
+  --text:       #edeff4;
+  --text-dim:   #9aa3b6;
+  --text-faint: #6b7488;
+  --champagne:      #d9bb84;
+  --champagne-hi:   #ecd9ae;
+  --champagne-soft: rgba(217, 187, 132, 0.13);
+  --champagne-line: rgba(217, 187, 132, 0.28);
+  --dusk:           #8fa7cd;
+  --dusk-soft:      rgba(143, 167, 205, 0.10);
+
+  /* Type */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-body: 'Hanken Grotesk', -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'Spline Sans Mono', 'SF Mono', Menlo, monospace;
+
+  /* Scale */
+  --step--1: clamp(0.82rem, 0.8rem + 0.1vw, 0.88rem);
+  --step-0:  clamp(1rem, 0.96rem + 0.2vw, 1.1rem);
+  --step-1:  clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
+  --step-2:  clamp(1.6rem, 1.35rem + 1.2vw, 2.4rem);
+  --step-3:  clamp(2.2rem, 1.7rem + 2.5vw, 3.9rem);
+  --step-4:  clamp(3rem, 2rem + 5.4vw, 6.6rem);
+
+  /* Shape & space */
+  --radius-sm: 12px;
+  --radius: 20px;
+  --radius-lg: 28px;
+  --container: 1160px;
+  --gutter: clamp(1.25rem, 4vw, 2.5rem);
+  --section-pad: clamp(5.5rem, 12vh, 9rem);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --speed: 0.55s;
+
+  /* Elevation */
+  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset,
+                 0 24px 60px -32px rgba(0, 0, 0, 0.75);
+  --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.05) inset,
+                 0 34px 80px -30px rgba(0, 0, 0, 0.85);
+}

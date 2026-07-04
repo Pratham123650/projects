@@ -1,44 +1,39 @@
 import { useState } from 'react'
 
-import CursorGlow from './components/CursorGlow.jsx'
-import MatrixRain from './components/MatrixRain.jsx'
-import ParticleField from './components/ParticleField.jsx'
-import BootSequence from './components/BootSequence.jsx'
+import Preloader from './components/Preloader.jsx'
+import Spotlight from './components/Spotlight.jsx'
 import ScrollProgress from './components/ScrollProgress.jsx'
 import Nav from './components/Nav.jsx'
 import Hero from './components/Hero.jsx'
+import About from './components/About.jsx'
+import Skills from './components/Skills.jsx'
 import Projects from './components/Projects.jsx'
-import Resume from './components/Resume.jsx'
+import Experience from './components/Experience.jsx'
 import Contact from './components/Contact.jsx'
 import Footer from './components/Footer.jsx'
 
-import './styles/layout.css'
-
 export default function App() {
-  const [booted, setBooted] = useState(false)
+  const [ready, setReady] = useState(false)
 
   return (
     <>
-      <BootSequence onDone={() => setBooted(true)} />
+      <Preloader onDone={() => setReady(true)} />
 
-      <MatrixRain />
-      <ParticleField />
-      <div className="grid-bg" aria-hidden="true" />
-      <div className="bg-parallax-text mono" aria-hidden="true">SYSTEMS</div>
-
-      <CursorGlow />
+      <div className="aurora" aria-hidden="true" />
+      <div className="grain" aria-hidden="true" />
+      <Spotlight />
       <ScrollProgress />
 
-      <div className={`site ${booted ? 'is-booted' : ''}`}>
-        <Nav />
-        <Hero />
-        <main>
-          <Projects />
-          <Resume />
-          <Contact />
-        </main>
-        <Footer />
-      </div>
+      <Nav />
+      <Hero ready={ready} />
+      <main>
+        <About />
+        <Skills />
+        <Projects />
+        <Experience />
+        <Contact />
+      </main>
+      <Footer />
     </>
   )
 }

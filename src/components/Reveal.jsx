@@ -1,16 +1,19 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 
-export default function Reveal({ children, delay = 0, y = 32, className = '', as: Tag = 'div', ...rest }) {
+/** Scroll-triggered reveal. Animates transform + opacity only. */
+export default function Reveal({ children, delay = 0, y = 26, className, as = 'div', once = true }) {
+  const reduce = useReducedMotion()
+  const Tag = motion[as] || motion.div
+
   return (
-    <motion.div
+    <Tag
       className={className}
-      initial={{ opacity: 0, y, filter: 'blur(10px)' }}
-      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-      viewport={{ once: true, amount: 0.25 }}
-      transition={{ duration: 0.8, delay, ease: [0.2, 0.8, 0.2, 1] }}
-      {...rest}
+      initial={reduce ? false : { opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once, margin: '-60px' }}
+      transition={{ duration: 0.75, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
-    </motion.div>
+    </Tag>
   )
 }

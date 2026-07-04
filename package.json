@@ -1,18 +1,17 @@
 {
   "name": "pratham-portfolio",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist --nojekyll"
   },
   "dependencies": {
     "framer-motion": "^11.2.10",
-    "gsap": "^3.12.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
