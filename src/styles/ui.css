@@ -1,0 +1,379 @@
+/* ==========================================================================
+   UI systems: boot sequence · custom cursor · nav · bridges · terminal ·
+   System View (blueprint mode)
+   ========================================================================== */
+
+/* Boot sequence ---------------------------------------------------------- */
+.boot {
+  position: fixed; inset: 0; z-index: 400;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.65s var(--ease), transform 0.65s var(--ease);
+}
+.boot-out { opacity: 0; transform: scale(1.05); pointer-events: none; }
+
+.boot-inner { width: min(600px, 86vw); }
+
+.boot-lines { display: flex; flex-direction: column; gap: 0.45rem; min-height: 10.2em; }
+.boot-line {
+  opacity: 0;
+  animation: boot-line-in 0.35s var(--ease) var(--d, 0s) forwards;
+  letter-spacing: 0.22em;
+  font-size: 0.66rem;
+}
+.boot-line i { color: var(--accent); font-style: normal; margin-right: 0.5rem; }
+@keyframes boot-line-in { to { opacity: 1; } }
+
+.boot-net { width: 100%; margin: 1.6rem 0 1.2rem; overflow: visible; }
+.boot-path { stroke: var(--line-strong); stroke-width: 1; fill: none; }
+.boot-path-lit {
+  stroke: var(--accent); stroke-width: 1.4; fill: none;
+  stroke-dasharray: 640; stroke-dashoffset: 640;
+  animation: boot-draw 2s linear 0.15s forwards;
+  filter: drop-shadow(0 0 4px rgba(76, 194, 255, 0.7));
+}
+@keyframes boot-draw { to { stroke-dashoffset: 0; } }
+
+.boot-node {
+  fill: var(--faint); opacity: 0.4;
+  animation: boot-node-on 0.3s ease forwards;
+  animation-play-state: running;
+}
+@keyframes boot-node-on { to { fill: var(--accent); opacity: 1; } }
+
+.boot-packet {
+  fill: var(--packet-color);
+  filter: drop-shadow(0 0 5px rgba(76, 194, 255, 0.9));
+  offset-distance: 0%;
+  animation: boot-travel var(--travel, 2s) linear 0.15s forwards;
+}
+@keyframes boot-travel { to { offset-distance: 100%; } }
+
+.boot-pulse {
+  fill: none; stroke: var(--accent); stroke-width: 1.5;
+  transform-box: fill-box; transform-origin: center;
+  animation: ring-pulse 0.8s ease-out forwards;
+}
+@keyframes ring-pulse {
+  from { transform: scale(0.4); opacity: 1; }
+  to { transform: scale(3.2); opacity: 0; }
+}
+
+.boot-connected {
+  opacity: 0; color: var(--accent);
+  letter-spacing: 0.3em; font-size: 0.66rem;
+  transition: opacity 0.45s var(--ease);
+}
+.boot-connected.is-on { opacity: 1; }
+
+.boot-skip {
+  position: absolute; top: 1.4rem; right: 1.6rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  color: var(--muted);
+  transition: color 0.25s, border-color 0.25s;
+}
+.boot-skip:hover { color: var(--accent); border-color: var(--accent-dim); }
+
+/* Custom cursor ----------------------------------------------------------- */
+html.has-cursor, html.has-cursor * { cursor: none; }
+html.has-cursor :is(input, textarea, select) { cursor: text; }
+
+.cursor-layer { position: fixed; inset: 0; z-index: 500; pointer-events: none; }
+.cursor-dot {
+  position: fixed; top: -3px; left: -3px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: var(--packet-glow);
+  will-change: transform;
+}
+.cursor-dot.is-hidden { opacity: 0; }
+
+.cursor-ring {
+  position: fixed; top: -17px; left: -17px;
+  width: 34px; height: 34px;
+  border: 1px solid var(--accent-dim);
+  border-radius: 100px;
+  display: flex; align-items: center; justify-content: center;
+  transition: width 0.25s var(--ease), height 0.25s var(--ease),
+    margin 0.25s var(--ease), background 0.25s var(--ease), opacity 0.25s;
+  will-change: transform;
+}
+.cursor-ring.is-hover { width: 46px; height: 46px; margin: -6px 0 0 -6px; }
+.cursor-ring.is-text { opacity: 0; }
+.cursor-ring:is(.is-view, .is-connect, .is-open, .is-drag, .is-explore) {
+  width: 72px; height: 72px; margin: -19px 0 0 -19px;
+  background: rgba(7, 11, 18, 0.75);
+  border-color: var(--accent);
+  backdrop-filter: blur(2px);
+}
+.cursor-label {
+  font-family: var(--font-mono);
+  font-size: 0.55rem; letter-spacing: 0.2em;
+  color: var(--accent);
+}
+
+/* Scroll progress ---------------------------------------------------------- */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--violet));
+  transform-origin: left; z-index: 100;
+}
+
+/* Nav ----------------------------------------------------------------------- */
+.nav {
+  position: fixed; top: 14px; left: 0; right: 0; z-index: 90;
+  display: flex; justify-content: center;
+  padding: 0 1rem;
+}
+.nav-pill {
+  display: flex; align-items: center; gap: 0.9rem;
+  padding: 0.55rem 0.9rem;
+  border-radius: 100px;
+  background: rgba(10, 16, 27, 0.72);
+  border: 1px solid var(--line);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: padding 0.35s var(--ease);
+}
+.nav.is-compact .nav-pill { padding: 0.35rem 0.7rem; }
+
+.brand {
+  font-family: var(--font-display); font-weight: 700;
+  font-size: 1rem; letter-spacing: 0.06em;
+  padding: 0 0.4rem;
+}
+.brand em { font-style: normal; color: var(--accent); animation: caret-blink 1.3s steps(2) infinite; }
+@keyframes caret-blink { 50% { opacity: 0; } }
+
+.nav-links { display: flex; }
+.nav-link {
+  position: relative;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.88rem; color: var(--muted);
+  border-radius: 100px;
+  transition: color 0.25s;
+}
+.nav-link:hover, .nav-link.is-active { color: var(--text); }
+.nav-active-bg {
+  position: absolute; inset: 0; z-index: -1;
+  border-radius: 100px;
+  background: var(--accent-soft);
+}
+
+.nav-tools { display: flex; align-items: center; gap: 0.5rem; }
+
+.sv-toggle {
+  display: inline-flex; align-items: center; gap: 0.45rem;
+  padding: 0.45rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  font-size: 0.58rem;
+  transition: border-color 0.25s, color 0.25s;
+}
+.sv-toggle i {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--faint);
+  transition: background 0.25s, box-shadow 0.25s;
+}
+.sv-toggle:hover { border-color: var(--accent-dim); }
+.sv-toggle.is-on { color: var(--accent); border-color: var(--accent-dim); }
+.sv-toggle.is-on i { background: var(--accent); box-shadow: var(--packet-glow); }
+
+.term-btn {
+  width: 34px; height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  font-size: 0.62rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: border-color 0.25s, color 0.25s;
+}
+.term-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+
+.nav-cta { padding: 0.5rem 1.05rem; font-size: 0.85rem; }
+
+.nav-burger {
+  display: none;
+  width: 38px; height: 38px;
+  position: relative;
+}
+.nav-burger span,
+.nav-burger span::before,
+.nav-burger span::after {
+  content: '';
+  position: absolute; left: 9px; right: 9px;
+  height: 2px; border-radius: 2px;
+  background: var(--text);
+  transition: transform 0.3s var(--ease), opacity 0.3s;
+}
+.nav-burger span { top: 18px; }
+.nav-burger span::before { left: 0; right: 0; top: -6px; }
+.nav-burger span::after { left: 0; right: 0; top: 6px; }
+.nav-burger.is-open span { background: transparent; }
+.nav-burger.is-open span::before { transform: translateY(6px) rotate(45deg); }
+.nav-burger.is-open span::after { transform: translateY(-6px) rotate(-45deg); }
+
+.nav-mobile {
+  position: fixed; top: 72px; left: 1rem; right: 1rem; z-index: 85;
+  background: rgba(10, 16, 27, 0.96);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  padding: 0.8rem;
+  display: none;
+}
+.nav-mobile a {
+  display: block; padding: 0.85rem 1rem;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+}
+.nav-mobile a.is-active, .nav-mobile a:hover { color: var(--text); background: var(--accent-soft); }
+.nav-mobile-tools { display: flex; gap: 0.6rem; padding: 0.6rem 1rem 0.2rem; }
+.nav-mobile-tools .term-btn { width: auto; border-radius: 100px; padding: 0.45rem 0.75rem; }
+
+@media (max-width: 1020px) {
+  .nav-links, .nav-tools { display: none; }
+  .nav-burger { display: block; }
+  .nav-mobile { display: block; }
+}
+
+/* Bridges — the packet's route between sections ---------------------------- */
+.bridge {
+  height: 200px;
+  display: flex; justify-content: center;
+  margin: -30px 0;
+  position: relative;
+}
+.bridge svg { height: 100%; overflow: visible; }
+.bridge-path {
+  stroke: var(--line-strong); stroke-width: 1; fill: none;
+  stroke-dasharray: 3 7;
+}
+.bridge-lit {
+  stroke: var(--accent); stroke-width: 1.4; fill: none;
+  filter: drop-shadow(0 0 4px rgba(76, 194, 255, 0.55));
+}
+.bridge-packet {
+  fill: var(--packet-color);
+  filter: drop-shadow(0 0 5px rgba(76, 194, 255, 0.9));
+}
+
+/* Terminal ------------------------------------------------------------------ */
+.term {
+  position: fixed; bottom: 18px; right: 18px; z-index: 300;
+  width: min(580px, calc(100vw - 2rem));
+  height: 400px;
+  display: flex; flex-direction: column;
+  background: rgba(8, 12, 20, 0.97);
+  border: 1px solid var(--line-strong);
+  border-radius: 12px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+.term-bar {
+  display: flex; align-items: center; gap: 0.8rem;
+  padding: 0.6rem 0.9rem;
+  border-bottom: 1px solid var(--line);
+  background: rgba(146, 170, 202, 0.04);
+}
+.term-dots { display: flex; gap: 5px; }
+.term-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--faint); opacity: 0.55; }
+.term-dots i:first-child { background: var(--accent); opacity: 0.8; }
+.term-title { font-size: 0.6rem; }
+.term-close {
+  margin-left: auto;
+  width: 28px; height: 28px;
+  border-radius: 6px;
+  color: var(--muted); font-size: 1.1rem; line-height: 1;
+  transition: color 0.2s, background 0.2s;
+}
+.term-close:hover { color: var(--text); background: var(--accent-soft); }
+
+.term-body {
+  flex: 1; overflow-y: auto;
+  padding: 0.9rem 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem; line-height: 1.75;
+  cursor: text;
+}
+.term-line { white-space: pre-wrap; word-break: break-word; }
+.term-cmd { color: var(--text); }
+.term-out { color: var(--muted); }
+.term-prompt { color: var(--accent); }
+.term-input-row { display: flex; }
+.term-input {
+  flex: 1;
+  background: none; border: none; outline: none;
+  font-family: var(--font-mono); font-size: 0.78rem;
+  color: var(--text);
+  caret-color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .term {
+    left: 0; right: 0; bottom: 0;
+    width: 100%; height: 58vh;
+    border-radius: 14px 14px 0 0;
+  }
+}
+
+/* System View — the blueprint underneath ------------------------------------ */
+html.sysview .bd-grid {
+  opacity: 0.85;
+  background-size: 36px 36px;
+  -webkit-mask-image: none;
+          mask-image: none;
+}
+html.sysview .bd-warm, html.sysview .bd-cool, html.sysview .bd-dusk { opacity: 0.25 !important; }
+
+section[data-module], header[data-module] { position: relative; }
+section[data-module]::before, header[data-module]::before {
+  content: attr(data-module);
+  position: absolute; top: 14px; left: 16px; z-index: 20;
+  font-family: var(--font-mono); font-size: 0.58rem; letter-spacing: 0.16em;
+  color: var(--accent);
+  background: rgba(8, 12, 20, 0.85);
+  border: 1px solid var(--accent-dim);
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+  pointer-events: none;
+}
+html.sysview section[data-module]::before,
+html.sysview header[data-module]::before { opacity: 1; transform: translateY(0); }
+
+html.sysview section[data-module], html.sysview header[data-module] {
+  outline: 1px dashed rgba(76, 194, 255, 0.3);
+  outline-offset: -8px;
+}
+
+[data-sv] { transition: outline-color 0.4s; }
+html.sysview [data-sv] {
+  outline: 1px dashed rgba(139, 124, 246, 0.4);
+  outline-offset: 4px;
+}
+html.sysview [data-sv]::after {
+  content: attr(data-sv);
+  position: absolute; right: 6px; bottom: 6px; z-index: 20;
+  font-family: var(--font-mono); font-size: 0.5rem; letter-spacing: 0.14em;
+  color: var(--violet);
+  background: rgba(8, 12, 20, 0.85);
+  padding: 0.15rem 0.4rem;
+  border-radius: 3px;
+  pointer-events: none;
+}
+html.sysview .bridge::after {
+  content: 'DATA_FLOW ↓';
+  position: absolute; top: 50%; left: calc(50% + 40px);
+  font-family: var(--font-mono); font-size: 0.55rem; letter-spacing: 0.18em;
+  color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .boot-line { animation-duration: 0.01s; }
+  .boot-packet, .boot-path-lit { animation: none; opacity: 0; }
+  .boot-node { animation-duration: 0.01s; }
+  .brand em { animation: none; }
+}

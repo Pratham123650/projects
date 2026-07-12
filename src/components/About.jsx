@@ -1,11 +1,25 @@
 import Reveal from './Reveal.jsx'
+import { PROFILE } from '../data/content.js'
+
+/* About — a personal system profile: technical styling, readable content. */
+
+const ROWS = [
+  ['USER', PROFILE.name],
+  ['ROLE', `${PROFILE.role} — ${PROFILE.school}`],
+  ['DEGREE', `${PROFILE.degree} · Minor: ${PROFILE.minor}`],
+  ['GPA', PROFILE.gpa],
+  ['GRADUATION', PROFILE.graduation],
+  ['LOCATION', PROFILE.location],
+  ['FOCUS', 'Systems / Networks / Automation'],
+]
 
 export default function About() {
   return (
-    <section id="about">
+    <section id="about" data-module="MODULE_02 · USER_PROFILE">
       <div className="container">
         <Reveal>
-          <span className="section-eyebrow mono">About</span>
+          <span className="section-eyebrow mono">User profile</span>
+          <h2 className="section-title">System <em>identity</em></h2>
         </Reveal>
 
         <div className="about-grid">
@@ -17,49 +31,32 @@ export default function About() {
               </p>
             </Reveal>
             <Reveal delay={0.1}>
-              <p className="about-body">
-                I&apos;m an Information Technology student at Wayne State University with a
-                minor in Business Administration. My current focus is building infrastructure
-                skills through labs, coursework, and hands-on projects — from running a
-                Proxmox home lab to configuring core network services.
-              </p>
+              <p className="about-body">{PROFILE.about1}</p>
             </Reveal>
             <Reveal delay={0.18}>
-              <p className="about-body">
-                Outside the terminal, I&apos;ve led as Vice President of the Video Game
-                Development Club and managed daily operations at Subway — experience that
-                shaped how I communicate, coordinate, and solve problems under pressure.
-              </p>
+              <p className="about-body">{PROFILE.about2}</p>
             </Reveal>
           </div>
 
           <div className="about-side">
             <Reveal delay={0.12}>
-              <div className="card edu-card">
-                <span className="mono" style={{ display: 'block', marginBottom: '0.9rem' }}>
-                  Education
-                </span>
-                <div className="edu-school">Wayne State University</div>
-                <div className="edu-loc">Detroit, MI</div>
-
-                <div className="edu-rows">
-                  <div className="edu-row">
-                    <span>Degree</span>
-                    <strong>B.S. Information Technology</strong>
-                  </div>
-                  <div className="edu-row">
-                    <span>Minor</span>
-                    <strong>Business Administration</strong>
-                  </div>
-                  <div className="edu-row">
-                    <span>Graduation</span>
-                    <strong>December 2027</strong>
-                  </div>
+              <div className="card profile-card" data-sv="SYSTEM_NODE">
+                <div className="pc-head mono">
+                  <span>USER_PROFILE</span>
+                  <span className="pc-status"><i /> ACTIVE</span>
                 </div>
 
-                <div className="gpa-chip">
-                  <strong>3.83</strong>
-                  <span>GPA</span>
+                <dl className="pc-rows">
+                  {ROWS.map(([k, v]) => (
+                    <div className="pc-row" key={k}>
+                      <dt className="mono">{k}</dt>
+                      <dd>{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+
+                <div className="pc-foot mono">
+                  <i /> {PROFILE.status.toUpperCase()}
                 </div>
               </div>
             </Reveal>

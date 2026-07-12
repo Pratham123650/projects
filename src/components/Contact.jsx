@@ -1,15 +1,20 @@
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import Reveal from './Reveal.jsx'
 import Magnetic from './Magnetic.jsx'
+import { PROFILE, FORM_ENDPOINT } from '../data/content.js'
 
-const EMAIL = 'prathampatel102403@gmail.com'
+/*
+ * Contact — establishing the final connection.
+ * If FORM_ENDPOINT (Formspree) is configured the form posts there;
+ * otherwise it falls back to mailto so the button always works.
+ */
 
 const CHANNELS = [
   {
     label: 'Email',
-    value: EMAIL,
-    href: `mailto:${EMAIL}`,
+    value: PROFILE.email,
+    href: `mailto:${PROFILE.email}`,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="5" width="18" height="14" rx="2.5" />
@@ -19,8 +24,8 @@ const CHANNELS = [
   },
   {
     label: 'GitHub',
-    value: 'github.com/Pratham123650',
-    href: 'https://github.com/Pratham123650',
+    value: PROFILE.githubLabel,
+    href: PROFILE.github,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <path d="M15 22v-3.2c0-.9-.2-1.6-.7-2.1 2.4-.3 4.9-1.2 4.9-5.4 0-1.2-.4-2.2-1.1-3 .1-.3.5-1.4-.1-2.9 0 0-.9-.3-3 1.1a10.4 10.4 0 0 0-5.5 0c-2.1-1.4-3-1.1-3-1.1-.6 1.5-.2 2.6-.1 2.9-.7.8-1.1 1.8-1.1 3 0 4.2 2.5 5.1 4.9 5.4-.4.4-.6 1-.7 1.7-.6.3-2.2.8-3.2-.9-.6-1-1.6-1.1-1.6-1.1" />
@@ -30,8 +35,8 @@ const CHANNELS = [
   },
   {
     label: 'LinkedIn',
-    value: 'linkedin.com/in/prathampatelit',
-    href: 'https://www.linkedin.com/in/prathampatelit/',
+    value: PROFILE.linkedinLabel,
+    href: PROFILE.linkedin,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         <rect x="3" y="3" width="18" height="18" rx="3" />
@@ -42,30 +47,46 @@ const CHANNELS = [
 ]
 
 export default function Contact() {
-  const [sent, setSent] = useState(false)
+  const [state, setState] = useState('idle') // idle | sending | sent | error
+  const reduce = useReducedMotion()
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault()
     const data = new FormData(e.currentTarget)
+
+    if (FORM_ENDPOINT) {
+      setState('sending')
+      try {
+        const res = await fetch(FORM_ENDPOINT, {
+          method: 'POST',
+          body: data,
+          headers: { Accept: 'application/json' },
+        })
+        setState(res.ok ? 'sent' : 'error')
+      } catch {
+        setState('error')
+      }
+      return
+    }
+
+    /* mailto fallback — always works, no backend required. */
     const name = data.get('name') || ''
     const from = data.get('email') || ''
     const message = data.get('message') || ''
     const subject = encodeURIComponent(`Portfolio message from ${name}`)
     const body = encodeURIComponent(`${message}\n\n— ${name}${from ? ` (${from})` : ''}`)
-    window.location.href = `mailto:${EMAIL}?subject=${subject}&body=${body}`
-    setSent(true)
+    window.location.href = `mailto:${PROFILE.email}?subject=${subject}&body=${body}`
+    setState('sent')
   }
 
   return (
-    <section id="contact">
+    <section id="contact" data-module="MODULE_08 · CONNECTION">
       <div className="container">
         <Reveal>
-          <div className="card contact-panel">
+          <div className="card contact-panel" data-sv="CONNECTION_NODE">
             <div className="contact-info">
-              <span className="section-eyebrow mono">Reach out</span>
-              <h2 className="contact-title">
-                Let&apos;s build something <em>reliable</em>.
-              </h2>
+              <span className="section-eyebrow mono">Establish a new connection</span>
+              <h2 className="contact-title">Ready to <em>connect?</em></h2>
               <p className="contact-sub">
                 Open to internships, collaborations, and conversations about systems,
                 networking, and infrastructure.
@@ -77,6 +98,7 @@ export default function Contact() {
                     key={c.label}
                     href={c.href}
                     className="contact-channel"
+                    data-cursor="open"
                     target={c.href.startsWith('http') ? '_blank' : undefined}
                     rel={c.href.startsWith('http') ? 'noreferrer' : undefined}
                   >
@@ -88,44 +110,54 @@ export default function Contact() {
                   </a>
                 ))}
               </div>
+
+              {/* Final route: the packet reaches its destination. */}
+              <svg className="contact-route" viewBox="0 0 220 40" aria-hidden="true">
+                <path className="cr-path" d="M 6 20 H 150" />
+                <circle className="cr-node" cx="160" cy="20" r="5" />
+                <circle className="cr-node-halo" cx="160" cy="20" r="11" />
+                {state === 'sent' && !reduce && <circle className="cr-packet" r="4" cy="20" />}
+              </svg>
             </div>
 
             <form className="contact-form" onSubmit={onSubmit}>
               <div className="field">
-                <input name="name" placeholder="Your name" autoComplete="name" required aria-label="Your name" />
+                <label className="mono" htmlFor="cf-name">NAME</label>
+                <input id="cf-name" name="name" autoComplete="name" required data-cursor="text" />
               </div>
               <div className="field">
-                <input name="email" type="email" placeholder="Your email" autoComplete="email" required aria-label="Your email" />
+                <label className="mono" htmlFor="cf-email">EMAIL</label>
+                <input id="cf-email" name="email" type="email" autoComplete="email" required data-cursor="text" />
               </div>
               <div className="field">
-                <textarea name="message" placeholder="What would you like to talk about?" required aria-label="Message" />
+                <label className="mono" htmlFor="cf-msg">MESSAGE</label>
+                <textarea id="cf-msg" name="message" required data-cursor="text" />
               </div>
 
               <AnimatePresence mode="wait">
-                {sent ? (
+                {state === 'sent' ? (
                   <motion.p
                     key="ok"
-                    className="form-success"
-                    initial={{ opacity: 0, y: 10 }}
+                    className="form-success mono"
+                    initial={reduce ? false : { opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     role="status"
                   >
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <motion.path
-                        d="M4 12.5 9.5 18 20 6.5"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{ duration: 0.6, delay: 0.15, ease: 'easeOut' }}
-                      />
-                    </svg>
-                    Opening your mail app — thanks for reaching out.
+                    <i /> TRANSMISSION RECEIVED
+                    {!FORM_ENDPOINT && <span className="fs-sub">Opening your mail app — thanks for reaching out.</span>}
                   </motion.p>
                 ) : (
                   <motion.div key="btn" exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.3 }}>
-                    <Magnetic className="btn btn-primary form-submit" type="submit">
-                      Send message <span className="arrow">→</span>
+                    <Magnetic className="btn btn-primary form-submit" type="submit" data-cursor="open" disabled={state === 'sending'}>
+                      {state === 'sending' ? 'Routing…' : 'Send transmission'} <span className="arrow">→</span>
                     </Magnetic>
+                    {state === 'error' && (
+                      <p className="form-error" role="alert">
+                        Transmission failed — email me directly at{' '}
+                        <a className="u-link" href={`mailto:${PROFILE.email}`}>{PROFILE.email}</a>
+                      </p>
+                    )}
                   </motion.div>
                 )}
               </AnimatePresence>

@@ -1,75 +1,146 @@
-import { useCallback } from 'react'
+import { useRef, useState } from 'react'
+import {
+  motion,
+  AnimatePresence,
+  useScroll,
+  useMotionValueEvent,
+  useReducedMotion,
+} from 'framer-motion'
 import Reveal from './Reveal.jsx'
+import { SKILL_CATEGORIES } from '../data/content.js'
 
-const GROUPS = [
-  {
-    title: 'Systems & Virtualization',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-        <rect x="3" y="4" width="18" height="7" rx="1.5" />
-        <rect x="3" y="13" width="18" height="7" rx="1.5" />
-        <path d="M7 7.5h.01M7 16.5h.01" strokeWidth="2.4" />
-      </svg>
-    ),
-    skills: ['Linux Administration', 'Windows Server', 'Active Directory', 'Proxmox', 'VirtualBox'],
-  },
-  {
-    title: 'Networking',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-        <circle cx="12" cy="5" r="2.2" />
-        <circle cx="5" cy="19" r="2.2" />
-        <circle cx="19" cy="19" r="2.2" />
-        <path d="M12 7.2v5M12 12.2 6.2 17.4M12 12.2l5.8 5.2" />
-      </svg>
-    ),
-    skills: ['Networking', 'TCP/IP', 'DNS', 'DHCP'],
-  },
-  {
-    title: 'Development',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-        <path d="m8 6-5 6 5 6M16 6l5 6-5 6M13.5 4l-3 16" />
-      </svg>
-    ),
-    skills: ['Java', 'Python'],
-  },
-]
+/*
+ * Skills as a network architecture map.
+ * PRATHAM is the core node; categories branch outward. The recurring
+ * packet enters on scroll and routes to each category, lighting it up.
+ * Hover / focus / tap explores; click pins a category open.
+ */
+
+const CX = 50
+const CY = 50
 
 export default function Skills() {
-  /* Feed cursor position into the card's radial glow via CSS vars. */
-  const track = useCallback((e) => {
-    const r = e.currentTarget.getBoundingClientRect()
-    e.currentTarget.style.setProperty('--mx', `${e.clientX - r.left}px`)
-    e.currentTarget.style.setProperty('--my', `${e.clientY - r.top}px`)
-  }, [])
+  const mapRef = useRef(null)
+  const packetRef = useRef(null)
+  const reduce = useReducedMotion()
+
+  const [hovered, setHovered] = useState(null)
+  const [pinned, setPinned] = useState(null)
+  const [lit, setLit] = useState(reduce ? SKILL_CATEGORIES.length : 0)
+
+  /* Scroll-scrubbed packet: routes core → node k while the map crosses the viewport. */
+  const { scrollYProgress } = useScroll({ target: mapRef, offset: ['start 0.85', 'end 0.6'] })
+  useMotionValueEvent(scrollYProgress, 'change', (p) => {
+    if (reduce) return
+    const n = SKILL_CATEGORIES.length
+    const total = Math.min(0.999, Math.max(0, p)) * n
+    const idx = Math.floor(total)
+    const t = total - idx
+    setLit(p >= 1 ? n : idx)
+    const el = packetRef.current
+    if (!el) return
+    if (p <= 0 || p >= 1) { el.style.opacity = 0; return }
+    const target = SKILL_CATEGORIES[Math.min(idx, n - 1)]
+    el.style.opacity = 1
+    el.setAttribute('cx', CX + (target.x - CX) * t)
+    el.setAttribute('cy', CY + (target.y - CY) * t)
+  })
+
+  const active = pinned ?? hovered
+  const activeCat = SKILL_CATEGORIES.find((c) => c.id === active)
 
   return (
-    <section id="skills">
+    <section id="skills" data-module="MODULE_03 · NETWORK_MAP">
       <div className="container">
         <div className="section-head">
           <Reveal>
-            <span className="section-eyebrow mono">Capabilities</span>
-            <h2 className="section-title">Technical <em>skills</em></h2>
+            <span className="section-eyebrow mono">Network architecture</span>
+            <h2 className="section-title">Skill <em>nodes</em></h2>
+            <p className="section-sub">
+              Every capability routes back to hands-on work. Hover or tap a node to
+              see where I&apos;ve actually used it.
+            </p>
           </Reveal>
         </div>
 
-        <div className="skills-grid">
-          {GROUPS.map((g, i) => (
-            <Reveal key={g.title} delay={i * 0.1}>
-              <div className="card skill-card" onPointerMove={track}>
-                <div className="skill-head">
-                  <span className="skill-icon">{g.icon}</span>
-                  <h3>{g.title}</h3>
+        <Reveal delay={0.08}>
+          <div
+            className="netmap"
+            ref={mapRef}
+            data-active={active || undefined}
+            data-sv="NETWORK_MAP"
+          >
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="netmap-svg" aria-hidden="true">
+              {SKILL_CATEGORIES.map((c, i) => (
+                <line
+                  key={c.id}
+                  className={`nm-edge${active === c.id ? ' is-active' : ''}${i < lit ? ' is-lit' : ''}`}
+                  x1={CX} y1={CY} x2={c.x} y2={c.y}
+                />
+              ))}
+              {!reduce && <circle ref={packetRef} className="nm-packet" r="1.1" cx={CX} cy={CY} style={{ opacity: 0 }} />}
+            </svg>
+
+            {/* Core node */}
+            <div className="nm-core" style={{ left: `${CX}%`, top: `${CY}%` }} aria-hidden="true">
+              <span className="nm-core-ring" />
+              <span className="nm-core-label mono">PRATHAM</span>
+            </div>
+
+            {/* Category nodes */}
+            {SKILL_CATEGORIES.map((c, i) => (
+              <button
+                key={c.id}
+                className={`nm-node${active === c.id ? ' is-active' : ''}${i < lit ? ' is-lit' : ''}`}
+                style={{ left: `${c.x}%`, top: `${c.y}%` }}
+                data-cursor="explore"
+                aria-expanded={active === c.id}
+                onPointerEnter={() => setHovered(c.id)}
+                onPointerLeave={() => setHovered(null)}
+                onFocus={() => setHovered(c.id)}
+                onBlur={() => setHovered(null)}
+                onClick={() => setPinned((v) => (v === c.id ? null : c.id))}
+              >
+                <i className="nm-dot" />
+                <span className="nm-label mono">{c.label.toUpperCase()}</span>
+              </button>
+            ))}
+          </div>
+        </Reveal>
+
+        {/* Detail panel */}
+        <div className="nm-panel-wrap" aria-live="polite">
+          <AnimatePresence mode="wait">
+            {activeCat ? (
+              <motion.div
+                key={activeCat.id}
+                className="card nm-panel"
+                initial={reduce ? false : { opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={reduce ? undefined : { opacity: 0, y: -10 }}
+                transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="nm-panel-head mono">
+                  <span>NODE // {activeCat.label.toUpperCase()}</span>
+                  <span className="nm-panel-status"><i /> LINK ACTIVE</span>
                 </div>
-                <div className="skill-tags">
-                  {g.skills.map((s) => (
-                    <span className="tag" key={s}>{s}</span>
-                  ))}
+                <p>{activeCat.usage}</p>
+                <div className="nm-panel-tags">
+                  {activeCat.tech.map((t) => <span className="tag" key={t}>{t}</span>)}
                 </div>
-              </div>
-            </Reveal>
-          ))}
+              </motion.div>
+            ) : (
+              <motion.p
+                key="hint"
+                className="nm-hint mono"
+                initial={reduce ? false : { opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={reduce ? undefined : { opacity: 0 }}
+              >
+                ▸ SELECT A NODE TO INSPECT ITS ROUTE
+              </motion.p>
+            )}
+          </AnimatePresence>
         </div>
       </div>
     </section>

@@ -1,55 +1,52 @@
-/* ---------------------------------------------------------------------------
-   Design tokens — Pratham Patel portfolio
-   Palette: deep ink-blue base, champagne accent, dusk-blue secondary.
---------------------------------------------------------------------------- */
-
+/* Design system — Digital Infrastructure Journey */
 :root {
-  /* Color */
-  --ink:        #0b0d12;
-  --ink-2:      #0e1118;
-  --raised:     #12151d;
-  --raised-2:   #171b25;
-  --glass:      rgba(19, 23, 32, 0.62);
-  --line:       rgba(205, 213, 230, 0.09);
-  --line-soft:  rgba(205, 213, 230, 0.055);
-  --text:       #edeff4;
-  --text-dim:   #9aa3b6;
-  --text-faint: #6b7488;
-  --champagne:      #d9bb84;
-  --champagne-hi:   #ecd9ae;
-  --champagne-soft: rgba(217, 187, 132, 0.13);
-  --champagne-line: rgba(217, 187, 132, 0.28);
-  --dusk:           #8fa7cd;
-  --dusk-soft:      rgba(143, 167, 205, 0.10);
+  /* Surfaces */
+  --bg: #070b12;
+  --bg-2: #0a101b;
+  --surface: #0d1421;
+  --surface-2: #111a2b;
+  --line: rgba(146, 170, 202, 0.13);
+  --line-strong: rgba(146, 170, 202, 0.28);
+
+  /* Text */
+  --text: #e9eef6;
+  --muted: #8fa0b5;
+  --faint: #5c6b80;
+
+  /* Accents — controlled electric cyan + subtle violet */
+  --accent: #4cc2ff;
+  --accent-soft: rgba(76, 194, 255, 0.14);
+  --accent-dim: rgba(76, 194, 255, 0.45);
+  --violet: #8b7cf6;
+  --violet-soft: rgba(139, 124, 246, 0.12);
+  --ok: #4ade80;
+  --warn: #fbbf24;
 
   /* Type */
-  --font-display: 'Fraunces', Georgia, serif;
-  --font-body: 'Hanken Grotesk', -apple-system, 'Segoe UI', sans-serif;
-  --font-mono: 'Spline Sans Mono', 'SF Mono', Menlo, monospace;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 
-  /* Scale */
-  --step--1: clamp(0.82rem, 0.8rem + 0.1vw, 0.88rem);
-  --step-0:  clamp(1rem, 0.96rem + 0.2vw, 1.1rem);
-  --step-1:  clamp(1.2rem, 1.1rem + 0.5vw, 1.5rem);
-  --step-2:  clamp(1.6rem, 1.35rem + 1.2vw, 2.4rem);
-  --step-3:  clamp(2.2rem, 1.7rem + 2.5vw, 3.9rem);
-  --step-4:  clamp(3rem, 2rem + 5.4vw, 6.6rem);
+  /* Rhythm */
+  --container: 1180px;
+  --radius: 14px;
+  --radius-sm: 9px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-io: cubic-bezier(0.65, 0, 0.35, 1);
 
-  /* Shape & space */
-  --radius-sm: 12px;
-  --radius: 20px;
-  --radius-lg: 28px;
-  --container: 1160px;
-  --gutter: clamp(1.25rem, 4vw, 2.5rem);
-  --section-pad: clamp(5.5rem, 12vh, 9rem);
+  /* Packet — one visual language everywhere */
+  --packet-color: #4cc2ff;
+  --packet-glow: 0 0 6px rgba(76, 194, 255, 0.9), 0 0 18px rgba(76, 194, 255, 0.45);
 
-  /* Motion */
-  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --speed: 0.55s;
-
-  /* Elevation */
-  --shadow-card: 0 1px 0 rgba(255, 255, 255, 0.03) inset,
-                 0 24px 60px -32px rgba(0, 0, 0, 0.75);
-  --shadow-lift: 0 1px 0 rgba(255, 255, 255, 0.05) inset,
-                 0 34px 80px -30px rgba(0, 0, 0, 0.85);
+  /* Section-reactive backdrop hues */
+  --env-a: rgba(76, 194, 255, 0.07);
+  --env-b: rgba(139, 124, 246, 0.05);
 }
+
+html[data-section='about'] { --env-a: rgba(76, 194, 255, 0.05); --env-b: rgba(139, 124, 246, 0.04); }
+html[data-section='skills'] { --env-a: rgba(76, 194, 255, 0.09); --env-b: rgba(76, 194, 255, 0.04); }
+html[data-section='homelab'] { --env-a: rgba(52, 211, 153, 0.05); --env-b: rgba(76, 194, 255, 0.06); }
+html[data-section='virtualization'] { --env-a: rgba(139, 124, 246, 0.08); --env-b: rgba(76, 194, 255, 0.05); }
+html[data-section='projects'] { --env-a: rgba(139, 124, 246, 0.07); --env-b: rgba(76, 194, 255, 0.06); }
+html[data-section='experience'] { --env-a: rgba(76, 194, 255, 0.045); --env-b: rgba(139, 124, 246, 0.05); }
+html[data-section='contact'] { --env-a: rgba(76, 194, 255, 0.1); --env-b: rgba(139, 124, 246, 0.06); }

@@ -1,158 +1,152 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import {
   motion,
-  AnimatePresence,
   useMotionValue,
   useSpring,
+  useScroll,
+  useTransform,
   useReducedMotion,
 } from 'framer-motion'
 import Magnetic from './Magnetic.jsx'
-
-const ROLES = [
-  'IT Student',
-  'Systems Administration',
-  'Home Lab Builder',
-  'Networking & Virtualization',
-]
+import { PROFILE } from '../data/content.js'
 
 const STATS = [
-  { value: '3.83', label: 'GPA · Wayne State' },
+  { value: PROFILE.gpa, label: 'GPA · Wayne State' },
   { value: 'Dec 2027', label: 'Expected graduation' },
   { value: 'Michigan', label: 'Detroit metro' },
 ]
 
-const STACK = ['Linux', 'Windows Server', 'Proxmox', 'Networking', 'Java', 'Python']
+/* ------------------------------------------------------------------ */
+/* Infrastructure environment — racks, routes, LEDs. Simulated depth   */
+/* via layered parallax; the boot packet "lands" on the entry node.    */
+/* ------------------------------------------------------------------ */
 
-/* Signature element: a network topology drawn in champagne hairlines. */
-const NODES = [
-  [430, 90], [620, 150], [760, 70], [520, 260], [700, 300],
-  [840, 220], [610, 430], [780, 470], [470, 420], [880, 380],
-]
-const EDGES = [
-  [0, 1], [1, 2], [1, 3], [3, 4], [4, 5], [2, 5],
-  [3, 8], [4, 6], [6, 7], [7, 9], [5, 9], [6, 8], [4, 7],
-]
-/* Edges that carry animated "packets" after activation. */
-const STREAMS = [1, 3, 8, 10]
+/* One rack drawn in hairlines. */
+function Rack({ x, y, w = 96, h = 220, units = 6, seed = 0 }) {
+  const slats = Array.from({ length: units }, (_, i) => y + 18 + i * ((h - 30) / units))
+  return (
+    <g className="hs-rack">
+      <rect x={x} y={y} width={w} height={h} rx="5" />
+      <line x1={x + 8} y1={y + 8} x2={x + 8} y2={y + h - 8} opacity="0.35" />
+      <line x1={x + w - 8} y1={y + 8} x2={x + w - 8} y2={y + h - 8} opacity="0.35" />
+      {slats.map((sy, i) => (
+        <g key={i}>
+          <rect x={x + 13} y={sy} width={w - 26} height={((h - 30) / units) - 7} rx="2" opacity="0.55" />
+          <circle
+            className="hs-led"
+            cx={x + 22} cy={sy + 8} r="2"
+            style={{ animationDelay: `${((seed + i) % 5) * 0.9}s` }}
+          />
+          <line x1={x + 32} y1={sy + 8} x2={x + w - 20} y2={sy + 8} opacity="0.2" />
+        </g>
+      ))}
+    </g>
+  )
+}
 
-function Topology({ ready }) {
+const ROUTES = [
+  'M 520 330 L 610 330 L 640 280 L 700 280',
+  'M 520 330 L 600 380 L 700 380 L 730 420',
+  'M 748 240 L 748 180 L 850 180 L 880 220',
+  'M 700 480 L 640 520 L 520 520',
+]
+
+function InfraScene({ ready }) {
   const reduce = useReducedMotion()
   const px = useMotionValue(0)
   const py = useMotionValue(0)
   const sx = useSpring(px, { stiffness: 40, damping: 20, mass: 0.8 })
   const sy = useSpring(py, { stiffness: 40, damping: 20, mass: 0.8 })
+  const sx2 = useTransform(sx, (v) => v * 0.5)
+  const sy2 = useTransform(sy, (v) => v * 0.5)
 
   useEffect(() => {
-    if (reduce || window.matchMedia('(pointer: coarse)').matches) return
+    if (reduce || window.matchMedia('(pointer: coarse)').matches) return undefined
     const onMove = (e) => {
-      px.set((e.clientX / window.innerWidth - 0.5) * -18)
-      py.set((e.clientY / window.innerHeight - 0.5) * -12)
+      px.set((e.clientX / window.innerWidth - 0.5) * -20)
+      py.set((e.clientY / window.innerHeight - 0.5) * -13)
     }
     window.addEventListener('pointermove', onMove, { passive: true })
     return () => window.removeEventListener('pointermove', onMove)
   }, [reduce, px, py])
 
   return (
-    <div className="hero-topology" aria-hidden="true">
-      <motion.div className="hero-topology-inner" style={reduce ? undefined : { x: sx, y: sy }}>
-        <svg viewBox="380 30 560 500" fill="none">
-          <defs>
-            <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0" stopColor="#d9bb84" stopOpacity="0.55" />
-              <stop offset="1" stopColor="#8fa7cd" stopOpacity="0.35" />
-            </linearGradient>
-          </defs>
-          {EDGES.map(([a, b], i) => (
-            <motion.line
-              key={i}
-              x1={NODES[a][0]} y1={NODES[a][1]}
-              x2={NODES[b][0]} y2={NODES[b][1]}
-              stroke="url(#edge)"
-              strokeWidth="0.8"
-              initial={reduce ? false : { pathLength: 0, opacity: 0 }}
-              animate={ready ? { pathLength: 1, opacity: 1 } : {}}
-              transition={{ duration: 1.4, delay: 0.4 + i * 0.09, ease: [0.22, 1, 0.36, 1] }}
-            />
-          ))}
-          {/* Data streams: dashed overlays whose dashes travel along the wire. */}
-          {!reduce && STREAMS.map((e, i) => {
-            const [a, b] = EDGES[e]
-            return (
-              <motion.line
-                key={`s${e}`}
-                className="topo-stream"
-                x1={NODES[a][0]} y1={NODES[a][1]}
-                x2={NODES[b][0]} y2={NODES[b][1]}
-                initial={{ opacity: 0 }}
-                animate={ready ? { opacity: 1 } : {}}
-                transition={{ duration: 1, delay: 2.2 + i * 0.3 }}
-                style={{ animationDelay: `${i * 1.1}s` }}
-              />
-            )
-          })}
-          {NODES.map(([x, y], i) => (
-            <motion.g
-              key={i}
-              initial={reduce ? false : { opacity: 0, scale: 0 }}
-              animate={ready ? { opacity: 1, scale: 1 } : {}}
-              transition={{ duration: 0.6, delay: 0.5 + i * 0.08 }}
-              style={{ transformOrigin: `${x}px ${y}px` }}
-            >
-              <circle cx={x} cy={y} r="10" fill="#d9bb84" opacity="0.06" />
-              <circle cx={x} cy={y} r="2.4" fill={i % 3 === 0 ? '#d9bb84' : '#8fa7cd'} opacity="0.85" />
-            </motion.g>
-          ))}
+    <div className="hero-scene" aria-hidden="true" data-sv="ENTRY_NODE">
+      {/* Depth layer 1 — racks (moves most) */}
+      <motion.div className="hero-scene-layer" style={reduce ? undefined : { x: sx, y: sy }}>
+        <svg viewBox="440 60 560 560" fill="none" className="hs-svg">
+          <g className="hs-floor" opacity="0.3">
+            {Array.from({ length: 7 }, (_, i) => (
+              <line key={i} x1={440 + i * 90} y1="620" x2={620 + i * 62} y2="380" />
+            ))}
+            <line x1="440" y1="560" x2="1000" y2="560" />
+            <line x1="470" y1="480" x2="1000" y2="480" />
+          </g>
+          <motion.g
+            initial={reduce ? false : { opacity: 0 }}
+            animate={ready ? { opacity: 1 } : {}}
+            transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Rack x={700} y={230} seed={0} />
+            <Rack x={840} y={260} w={82} h={190} units={5} seed={2} />
+            <Rack x={588} y={430} w={78} h={130} units={3} seed={4} />
+          </motion.g>
         </svg>
       </motion.div>
 
-      {/* One calibration sweep across the hero as it activates. */}
-      {!reduce && (
-        <motion.div
-          className="hero-scan"
-          initial={{ x: '-10vw', opacity: 0 }}
-          animate={ready ? { x: '110vw', opacity: [0, 0.9, 0.9, 0] } : {}}
-          transition={{ duration: 1.6, delay: 1.1, ease: [0.4, 0, 0.2, 1] }}
-        />
-      )}
-    </div>
-  )
-}
+      {/* Depth layer 2 — routes + entry node (moves less → depth) */}
+      <motion.div className="hero-scene-layer" style={reduce ? undefined : { x: sx2, y: sy2 }}>
+        <svg viewBox="440 60 560 560" fill="none" className="hs-svg">
+          {ROUTES.map((d, i) => (
+            <motion.path
+              key={i}
+              className="hs-route"
+              d={d}
+              initial={reduce ? false : { pathLength: 0, opacity: 0 }}
+              animate={ready ? { pathLength: 1, opacity: 1 } : {}}
+              transition={{ duration: 1.3, delay: 0.7 + i * 0.18, ease: [0.22, 1, 0.36, 1] }}
+            />
+          ))}
+          {!reduce && ROUTES.slice(0, 2).map((d, i) => (
+            <path key={`s${i}`} className={`hs-stream${ready ? ' is-on' : ''}`} d={d} style={{ animationDelay: `${2 + i * 1.4}s` }} />
+          ))}
 
-function RotatingRole() {
-  const [i, setI] = useState(0)
-  const reduce = useReducedMotion()
+          {/* Entry node — receives the boot packet's pulse. */}
+          <motion.g
+            initial={reduce ? false : { opacity: 0, scale: 0.4 }}
+            animate={ready ? { opacity: 1, scale: 1 } : {}}
+            transition={{ duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            style={{ transformOrigin: '520px 330px' }}
+          >
+            <circle cx="520" cy="330" r="26" className="hs-node-halo" />
+            <circle cx="520" cy="330" r="5" className="hs-node-core" />
+            {ready && !reduce && <circle cx="520" cy="330" r="10" className="hs-node-pulse" />}
+          </motion.g>
 
-  useEffect(() => {
-    if (reduce) return
-    const t = setInterval(() => setI((v) => (v + 1) % ROLES.length), 2800)
-    return () => clearInterval(t)
-  }, [reduce])
-
-  return (
-    <div className="hero-role" aria-label={ROLES.join(', ')}>
-      <AnimatePresence mode="wait">
-        <motion.span
-          key={ROLES[i]}
-          initial={reduce ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={reduce ? undefined : { opacity: 0, y: -12 }}
-          transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {ROLES[i]}
-        </motion.span>
-      </AnimatePresence>
+          {/* The signature packet continues from the boot sequence. */}
+          {ready && !reduce && (
+            <circle
+              className="hero-packet"
+              r="4"
+              style={{ offsetPath: `path('${ROUTES[0]}')` }}
+            />
+          )}
+        </svg>
+      </motion.div>
     </div>
   )
 }
 
 export default function Hero({ ready }) {
   const reduce = useReducedMotion()
+  const ref = useRef(null)
 
-  const wordAnim = (delay) => ({
-    initial: reduce ? false : { y: '110%' },
-    animate: ready ? { y: 0 } : {},
-    transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] },
-  })
+  /* Scroll slowly moves the camera toward the infrastructure. */
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const sceneScale = useTransform(scrollYProgress, [0, 1], [1, 1.14])
+  const sceneY = useTransform(scrollYProgress, [0, 1], [0, -46])
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.55], [1, 0])
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, 80])
 
   const fade = (delay) => ({
     initial: reduce ? false : { opacity: 0, y: 24 },
@@ -160,14 +154,25 @@ export default function Hero({ ready }) {
     transition: { duration: 0.8, delay, ease: [0.22, 1, 0.36, 1] },
   })
 
-  return (
-    <header id="top" className="hero">
-      <Topology ready={ready} />
+  const wordAnim = (delay) => ({
+    initial: reduce ? false : { y: '110%' },
+    animate: ready ? { y: 0 } : {},
+    transition: { duration: 0.9, delay, ease: [0.22, 1, 0.36, 1] },
+  })
 
-      <div className="container hero-inner">
+  return (
+    <header id="top" className="hero" ref={ref} data-module="MODULE_01 · ENTRY_NODE">
+      <motion.div style={reduce ? undefined : { scale: sceneScale, y: sceneY }} className="hero-scene-wrap">
+        <InfraScene ready={ready} />
+      </motion.div>
+
+      <motion.div
+        className="container hero-inner"
+        style={reduce ? undefined : { opacity: copyOpacity, y: copyY }}
+      >
         <motion.div {...fade(0.1)}>
           <span className="hero-availability">
-            <i /> Open to IT &amp; systems internships
+            <i /> Open to IT &amp; systems opportunities
           </span>
         </motion.div>
 
@@ -180,33 +185,28 @@ export default function Hero({ ready }) {
           </span>
         </h1>
 
-        <motion.div {...fade(0.55)}>
-          <RotatingRole />
+        <motion.div className="hero-role mono" {...fade(0.5)}>
+          <span className="hr-main">{PROFILE.title}</span>
+          <span className="hr-sub">{PROFILE.tagline}</span>
         </motion.div>
 
-        <motion.p className="hero-copy" {...fade(0.65)}>
-          A portfolio built around <strong>practical systems work</strong> — virtualization,
-          networking labs, and infrastructure tools — on the path toward an IT systems internship.
+        <motion.p className="hero-copy" {...fade(0.62)}>
+          {PROFILE.intro}
         </motion.p>
 
-        <motion.div className="hero-ctas" {...fade(0.78)}>
-          <Magnetic href="#projects" className="btn btn-primary">
-            Explore work <span className="arrow">→</span>
+        <motion.div className="hero-ctas" {...fade(0.76)}>
+          <Magnetic href="#projects" className="btn btn-primary" data-cursor="open">
+            Explore the system <span className="arrow">→</span>
           </Magnetic>
-          <Magnetic href="/resume.pdf" target="_blank" rel="noreferrer" className="btn btn-ghost">
+          <Magnetic href={PROFILE.resume} target="_blank" rel="noreferrer" className="btn btn-ghost" data-cursor="open">
             View résumé
           </Magnetic>
-          <Magnetic
-            href="https://github.com/Pratham123650"
-            target="_blank"
-            rel="noreferrer"
-            className="btn btn-ghost"
-          >
+          <Magnetic href={PROFILE.github} target="_blank" rel="noreferrer" className="btn btn-ghost" data-cursor="open">
             GitHub
           </Magnetic>
         </motion.div>
 
-        <motion.div className="hero-stats" {...fade(0.92)}>
+        <motion.div className="hero-stats" {...fade(0.9)}>
           {STATS.map((s) => (
             <div className="hero-stat" key={s.label}>
               <strong>{s.value}</strong>
@@ -214,20 +214,14 @@ export default function Hero({ ready }) {
             </div>
           ))}
         </motion.div>
-
-        <motion.div className="hero-ctas" style={{ marginTop: '1.6rem', gap: '0.5rem' }} {...fade(1.02)}>
-          {STACK.map((t) => (
-            <span className="tag" key={t}>{t}</span>
-          ))}
-        </motion.div>
-      </div>
+      </motion.div>
 
       <div className="hero-scroll-hint" aria-hidden="true">
-        <span className="mono">Scroll</span>
+        <span className="mono">Follow the packet</span>
         <i />
       </div>
 
-      <motion.div className="hero-telemetry mono" aria-hidden="true" {...fade(1.5)}>
+      <motion.div className="hero-telemetry mono" aria-hidden="true" {...fade(1.4)}>
         <span>sys · online</span>
         <span>detroit, mi · 42.36°n / 83.07°w</span>
       </motion.div>

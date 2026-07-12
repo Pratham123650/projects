@@ -1,110 +1,101 @@
-import { useEffect, useState } from 'react'
-import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useTransform,
-  animate,
-  useReducedMotion,
-} from 'framer-motion'
+import { useEffect, useRef, useState } from 'react'
+import { useReducedMotion } from 'framer-motion'
+import { BOOT_LINES, PROFILE } from '../data/content.js'
 
-const BOOT_LINES = [
-  'Initializing portfolio',
-  'Loading projects',
-  'Calibrating interface',
-  'Rendering experience',
+/*
+ * Cinematic boot: system messages type in while the signature packet
+ * travels a minimal network pathway, activating nodes as it passes.
+ * Plays once per browser session; SKIP is always available.
+ */
+
+/* The packet's route — nodes sit on this path. */
+const PATH = 'M 20 62 L 150 62 L 210 26 L 330 26 L 396 96 L 508 96 L 580 62'
+const NODES = [
+  [20, 62], [150, 62], [210, 26], [330, 26], [396, 96], [508, 96], [580, 62],
 ]
-
-const LINE_STEP = 0.42 // seconds between status lines
-const TOTAL = 2.7 // total boot time before lift-off
+/* Node activation times, matched to constant packet speed along the path. */
+const TRAVEL = 2.0
+const DELAYS = [0, 0.35, 0.55, 0.88, 1.15, 1.5, 1.85]
 
 export default function Preloader({ onDone }) {
-  const [visible, setVisible] = useState(true)
   const reduce = useReducedMotion()
+  const [skipped] = useState(() => {
+    try { return sessionStorage.getItem('pp-booted') === '1' } catch { return false }
+  })
+  const [visible, setVisible] = useState(!skipped)
+  const [lines, setLines] = useState(0)
+  const [connected, setConnected] = useState(false)
+  const [leaving, setLeaving] = useState(false)
+  const doneRef = useRef(false)
 
-  /* Live progress counter — motion value renders without re-rendering the tree. */
-  const progress = useMotionValue(0)
-  const rounded = useTransform(progress, (v) => `${Math.round(v)}%`)
+  const finish = () => {
+    if (doneRef.current) return
+    doneRef.current = true
+    try { sessionStorage.setItem('pp-booted', '1') } catch { /* private mode */ }
+    setLeaving(true)
+    onDone()
+    setTimeout(() => setVisible(false), 700)
+  }
 
   useEffect(() => {
+    if (skipped) { doneRef.current = true; onDone(); return undefined }
+
     if (reduce) {
-      const t = setTimeout(() => { setVisible(false); onDone?.() }, 150)
+      setLines(BOOT_LINES.length)
+      setConnected(true)
+      const t = setTimeout(finish, 900)
       return () => clearTimeout(t)
     }
-    const controls = animate(progress, 100, { duration: TOTAL - 0.4, ease: [0.3, 0.6, 0.3, 1] })
-    const t = setTimeout(() => { setVisible(false); onDone?.() }, TOTAL * 1000)
-    return () => { controls.stop(); clearTimeout(t) }
-  }, [onDone, progress, reduce])
+
+    const timers = []
+    BOOT_LINES.forEach((_, i) => {
+      timers.push(setTimeout(() => setLines(i + 1), 200 + i * 320))
+    })
+    timers.push(setTimeout(() => setConnected(true), 2150))
+    timers.push(setTimeout(finish, 2850))
+    return () => timers.forEach(clearTimeout)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  if (!visible) return null
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          className="preloader"
-          exit={{ opacity: 0, y: reduce ? 0 : '-4%', scale: reduce ? 1 : 1.015 }}
-          transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-          aria-hidden="true"
-        >
-          {/* HUD frame corners */}
-          <div className="boot-frame">
-            {['tl', 'tr', 'bl', 'br'].map((c, i) => (
-              <motion.span
-                key={c}
-                className={`boot-corner boot-corner--${c}`}
-                initial={reduce ? false : { opacity: 0, scale: 0.6 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.6, delay: 0.1 + i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-              />
-            ))}
-          </div>
+    <div className={`boot${leaving ? ' boot-out' : ''}`} role="status" aria-label="Loading">
+      <div className="boot-inner">
+        <div className="boot-lines mono" aria-hidden="true">
+          {BOOT_LINES.slice(0, lines).map((l, i) => (
+            <span key={l} className="boot-line" style={{ '--d': `${i * 0.04}s` }}>
+              <i>▸</i> {l}
+            </span>
+          ))}
+        </div>
 
-          <div className="boot-core">
-            <div className="preloader-word">
-              <motion.span
-                initial={reduce ? false : { y: '110%' }}
-                animate={{ y: 0 }}
-                transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-              >
-                Pratham&nbsp;<em>Patel</em>
-              </motion.span>
-            </div>
+        <svg className="boot-net" viewBox="0 0 600 122" fill="none" aria-hidden="true">
+          <path className="boot-path" d={PATH} />
+          <path className={`boot-path-lit${connected ? ' is-done' : ''}`} d={PATH} />
+          {NODES.map(([x, y], i) => (
+            <circle
+              key={i}
+              className="boot-node"
+              cx={x} cy={y} r="4"
+              style={{ animationDelay: `${DELAYS[i]}s` }}
+            />
+          ))}
+          {/* Destination node pulse — this pulse hands off into the hero. */}
+          {connected && <circle className="boot-pulse" cx="580" cy="62" r="6" />}
+          {!reduce && (
+            <circle className="boot-packet" r="4" style={{ '--travel': `${TRAVEL}s`, offsetPath: `path('${PATH}')` }} />
+          )}
+        </svg>
 
-            <div className="boot-lines">
-              {BOOT_LINES.map((line, i) => (
-                <motion.div
-                  className="boot-line mono"
-                  key={line}
-                  initial={reduce ? false : { opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.4, delay: 0.5 + i * LINE_STEP }}
-                >
-                  <span className="boot-tick">▸</span>
-                  {line}
-                  <motion.span
-                    className="boot-ok"
-                    initial={reduce ? false : { opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.5 + i * LINE_STEP + 0.3 }}
-                  >
-                    ok
-                  </motion.span>
-                </motion.div>
-              ))}
-            </div>
+        <div className={`boot-connected mono${connected ? ' is-on' : ''}`}>
+          CONNECTED: {PROFILE.domain}
+        </div>
+      </div>
 
-            <div className="boot-progress">
-              <div className="preloader-line">
-                <motion.i
-                  initial={reduce ? false : { scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: TOTAL - 0.4, delay: 0.3, ease: [0.3, 0.6, 0.3, 1] }}
-                />
-              </div>
-              <motion.span className="boot-counter mono">{rounded}</motion.span>
-            </div>
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+      <button className="boot-skip mono" onClick={finish}>
+        SKIP ↵
+      </button>
+    </div>
   )
 }

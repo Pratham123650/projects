@@ -1,6 +1,13 @@
-import { useCallback, useRef } from 'react'
-import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion'
+import { useCallback, useState } from 'react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import Reveal from './Reveal.jsx'
+import { PROJECTS, PROJECT_FILTERS } from '../data/content.js'
+
+/*
+ * Projects as virtual infrastructure — each one is a running instance,
+ * not a card in a grid. Layered depth on hover (subtle, per-layer offsets),
+ * real filters, and a featured instance tied to the virtualization sequence.
+ */
 
 const ExternalIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -8,174 +15,121 @@ const ExternalIcon = () => (
   </svg>
 )
 
-/* Miniature line-art scenes, one per project — drawn, not stock. */
-const Visuals = {
-  rack: (
-    <svg viewBox="0 0 400 220" fill="none" stroke="currentColor" strokeWidth="1" preserveAspectRatio="xMidYMid slice">
-      <g opacity="0.9">
-        <rect x="140" y="30" width="120" height="160" rx="6" />
-        {[52, 78, 104, 130, 156].map((y) => (
-          <g key={y}>
-            <rect x="150" y={y} width="100" height="18" rx="3" opacity="0.7" />
-            <circle cx="158" cy={y + 9} r="2" fill="currentColor" stroke="none" opacity="0.9" />
-            <path d={`M170 ${y + 9} h60`} opacity="0.35" />
-          </g>
-        ))}
-        <path d="M140 110 H60 M60 110 V60 M60 110 V170" opacity="0.4" />
-        <circle cx="60" cy="60" r="3" fill="currentColor" stroke="none" opacity="0.7" />
-        <circle cx="60" cy="170" r="3" fill="currentColor" stroke="none" opacity="0.7" />
-        <path d="M260 90 H340 M340 90 V140" opacity="0.4" />
-        <circle cx="340" cy="140" r="3" fill="currentColor" stroke="none" opacity="0.7" />
-      </g>
-    </svg>
-  ),
-  code: (
-    <svg viewBox="0 0 400 220" fill="none" stroke="currentColor" strokeWidth="1" preserveAspectRatio="xMidYMid slice">
-      <g opacity="0.9">
-        <rect x="90" y="40" width="220" height="140" rx="8" />
-        <path d="M90 66h220" opacity="0.5" />
-        <circle cx="106" cy="53" r="3" opacity="0.7" />
-        <circle cx="118" cy="53" r="3" opacity="0.5" />
-        <circle cx="130" cy="53" r="3" opacity="0.3" />
-        <path d="m130 96-14 14 14 14M170 96l14 14-14 14M158 92l-8 40" opacity="0.85" />
-        <path d="M200 100h70M200 116h90M200 132h56" opacity="0.35" />
-      </g>
-    </svg>
-  ),
-  network: (
-    <svg viewBox="0 0 400 220" fill="none" stroke="currentColor" strokeWidth="1" preserveAspectRatio="xMidYMid slice">
-      <g opacity="0.9">
-        <circle cx="200" cy="110" r="26" />
-        <text x="200" y="115" textAnchor="middle" fontSize="11" fill="currentColor" stroke="none" fontFamily="monospace" opacity="0.9">DNS</text>
-        {[
-          [90, 50, 'AD'], [310, 50, 'DHCP'], [90, 170, 'SQL'], [310, 170, 'HTTP'],
-        ].map(([x, y, label]) => (
-          <g key={label}>
-            <rect x={x - 26} y={y - 15} width="52" height="30" rx="6" />
-            <text x={x} y={y + 4} textAnchor="middle" fontSize="10" fill="currentColor" stroke="none" fontFamily="monospace" opacity="0.9">{label}</text>
-            <path d={`M${x} ${y > 110 ? y - 15 : y + 15} L200 ${y > 110 ? 128 : 92}`} opacity="0.4" />
-          </g>
-        ))}
-      </g>
-    </svg>
-  ),
-}
-
-const PROJECTS = [
-  {
-    category: 'Infrastructure',
-    title: 'Home Lab / Proxmox Server',
-    desc: 'Built a virtualization environment for hosting VMs, testing services, and learning infrastructure management.',
-    tags: ['Proxmox', 'Linux', 'Virtualization'],
-    visual: 'rack',
-    wide: true,
-    links: [
-      { label: 'GitHub profile', href: 'https://github.com/Pratham123650' },
-      { label: 'Ask me about it', href: '#contact', internal: true },
-    ],
-  },
-  {
-    category: 'Development',
-    title: 'Java Application Projects',
-    desc: 'Created course-based apps involving data structures, file handling, and user interfaces for practical development experience.',
-    tags: ['Java', 'Data Structures', 'JavaFX'],
-    visual: 'code',
-    links: [{ label: 'View on GitHub', href: 'https://github.com/Pratham123650' }],
-  },
-  {
-    category: 'Systems',
-    title: 'Networking / Systems Labs',
-    desc: 'Configured services like DNS, DHCP, Active Directory, Apache, and MySQL as part of hands-on systems administration labs.',
-    tags: ['Networking', 'Windows Server', 'MySQL'],
-    visual: 'network',
-    links: [{ label: 'GitHub profile', href: 'https://github.com/Pratham123650' }],
-  },
-]
-
-function ProjectCard({ project }) {
-  const ref = useRef(null)
+function Instance({ p }) {
   const reduce = useReducedMotion()
-  const rx = useMotionValue(0)
-  const ry = useMotionValue(0)
-  const srx = useSpring(rx, { stiffness: 180, damping: 22 })
-  const sry = useSpring(ry, { stiffness: 180, damping: 22 })
 
+  /* Depth layers: children translate at different rates via CSS vars. */
   const onMove = useCallback((e) => {
-    const el = ref.current
-    if (!el) return
-    const r = el.getBoundingClientRect()
-    el.style.setProperty('--mx', `${e.clientX - r.left}px`)
-    el.style.setProperty('--my', `${e.clientY - r.top}px`)
     if (reduce) return
-    const px = (e.clientX - r.left) / r.width - 0.5
-    const py = (e.clientY - r.top) / r.height - 0.5
-    ry.set(px * 4)
-    rx.set(-py * 4)
-  }, [reduce, rx, ry])
+    const r = e.currentTarget.getBoundingClientRect()
+    e.currentTarget.style.setProperty('--px', (e.clientX - r.left) / r.width - 0.5)
+    e.currentTarget.style.setProperty('--py', (e.clientY - r.top) / r.height - 0.5)
+  }, [reduce])
 
-  const onLeave = useCallback(() => { rx.set(0); ry.set(0) }, [rx, ry])
+  const onLeave = useCallback((e) => {
+    e.currentTarget.style.setProperty('--px', 0)
+    e.currentTarget.style.setProperty('--py', 0)
+  }, [])
 
   return (
     <motion.article
-      ref={ref}
-      className={`card project-card${project.wide ? ' is-wide' : ''}`}
+      layout
+      className={`proj${p.featured ? ' is-featured' : ''}`}
+      data-cursor="view"
+      data-sv="PROJECT_INSTANCE"
       onPointerMove={onMove}
       onPointerLeave={onLeave}
-      style={reduce ? undefined : { rotateX: srx, rotateY: sry, transformPerspective: 900 }}
+      initial={reduce ? false : { opacity: 0, scale: 0.97 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={reduce ? undefined : { opacity: 0, scale: 0.96 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="project-top">
-        <span className="mono project-cat">{project.category}</span>
-        <span className="mono">{project.tags.length} tools</span>
+      <div className="proj-head mono">
+        <span className="proj-id">{p.instance}</span>
+        <span className="proj-cat">{p.category.toUpperCase()}</span>
+        <span className="proj-status"><i /> RUNNING</span>
       </div>
 
-      <div className="project-visual" aria-hidden="true">
-        {Visuals[project.visual]}
+      <div className="proj-body">
+        {p.featured && <span className="proj-flag mono">★ FEATURED INSTANCE</span>}
+        <h3 className="proj-title">{p.title}</h3>
+        <p className="proj-desc">{p.desc}</p>
+
+        <dl className="proj-rows">
+          <div><dt className="mono">MAIN CHALLENGE</dt><dd>{p.challenge}</dd></div>
+          <div><dt className="mono">WHAT I LEARNED</dt><dd>{p.learned}</dd></div>
+        </dl>
+
+        <div className="proj-tags">
+          {p.tags.map((t) => <span className="tag" key={t}>{t}</span>)}
+        </div>
+
+        <div className="proj-links">
+          {p.links.map((l) => (
+            <a
+              key={l.label}
+              href={l.href}
+              className="u-link"
+              data-cursor="open"
+              target={l.internal ? undefined : '_blank'}
+              rel={l.internal ? undefined : 'noreferrer'}
+            >
+              {l.label} {!l.internal && <ExternalIcon />}
+            </a>
+          ))}
+        </div>
       </div>
 
-      <h3>{project.title}</h3>
-      <p>{project.desc}</p>
-
-      <div className="project-tags">
-        {project.tags.map((t) => (
-          <span className="tag" key={t}>{t}</span>
-        ))}
-      </div>
-
-      <div className="project-links">
-        {project.links.map((l) => (
-          <a
-            key={l.label}
-            href={l.href}
-            className="u-link"
-            target={l.internal ? undefined : '_blank'}
-            rel={l.internal ? undefined : 'noreferrer'}
-          >
-            {l.label} {!l.internal && <ExternalIcon />}
-          </a>
-        ))}
-      </div>
+      {/* Decorative circuit layer — moves at its own depth rate */}
+      <svg className="proj-circuit" viewBox="0 0 200 120" aria-hidden="true">
+        <path d="M 10 100 H 60 V 60 H 120 M 120 60 H 190 M 60 60 V 20 H 100" />
+        <circle cx="120" cy="60" r="3" />
+        <circle cx="60" cy="60" r="2.4" />
+        <circle cx="100" cy="20" r="2.4" />
+      </svg>
     </motion.article>
   )
 }
 
 export default function Projects() {
+  const [filter, setFilter] = useState('All')
+  const visible = PROJECTS.filter((p) => filter === 'All' || p.category === filter)
+
   return (
-    <section id="projects">
+    <section id="projects" data-module="MODULE_06 · PROJECT_INSTANCES">
       <div className="container">
         <div className="section-head">
           <Reveal>
-            <span className="section-eyebrow mono">Selected work</span>
-            <h2 className="section-title">Featured <em>projects</em></h2>
+            <span className="section-eyebrow mono">Virtual infrastructure</span>
+            <h2 className="section-title">Project <em>instances</em></h2>
+            <p className="section-sub">
+              Every project runs as part of the same environment — physical hardware
+              underneath, virtual systems on top.
+            </p>
+          </Reveal>
+
+          <Reveal delay={0.08}>
+            <div className="proj-filters" role="tablist" aria-label="Filter projects">
+              {PROJECT_FILTERS.map((f) => (
+                <button
+                  key={f}
+                  role="tab"
+                  aria-selected={filter === f}
+                  className={`proj-filter mono${filter === f ? ' is-on' : ''}`}
+                  onClick={() => setFilter(f)}
+                >
+                  {f.toUpperCase()}
+                </button>
+              ))}
+            </div>
           </Reveal>
         </div>
 
-        <div className="projects-grid">
-          {PROJECTS.map((p, i) => (
-            <Reveal key={p.title} delay={i * 0.08} className={p.wide ? 'is-wide-wrap' : undefined} as="div">
-              <ProjectCard project={p} />
-            </Reveal>
-          ))}
-        </div>
+        <motion.div layout className="proj-grid">
+          <AnimatePresence mode="popLayout">
+            {visible.map((p) => <Instance key={p.id} p={p} />)}
+          </AnimatePresence>
+        </motion.div>
       </div>
     </section>
   )
