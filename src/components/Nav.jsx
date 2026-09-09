@@ -103,15 +103,17 @@ export default function Nav() {
             >
               &gt;_
             </button>
-            <a
-              href={PROFILE.resume}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-primary nav-cta"
-              data-cursor="open"
-            >
-              Resume
-            </a>
+            {PROFILE.resume && (
+              <a
+                href={PROFILE.resume}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-primary nav-cta"
+                data-cursor="open"
+              >
+                Resume
+              </a>
+            )}
           </div>
 
           <button
@@ -139,7 +141,9 @@ export default function Nav() {
                 {l.label}
               </a>
             ))}
-            <a href={PROFILE.resume} target="_blank" rel="noreferrer" onClick={close}>Resume</a>
+            {PROFILE.resume && (
+              <a href={PROFILE.resume} target="_blank" rel="noreferrer" onClick={close}>Resume</a>
+            )}
             <div className="nav-mobile-tools">
               <button
                 className={`sv-toggle mono${systemView ? ' is-on' : ''}`}

@@ -12,8 +12,8 @@ import { PROFILE } from '../data/content.js'
 
 const STATS = [
   { value: PROFILE.gpa, label: 'GPA · Wayne State' },
-  { value: 'Dec 2027', label: 'Expected graduation' },
-  { value: 'Michigan', label: 'Detroit metro' },
+  { value: PROFILE.graduation, label: 'Expected graduation' },
+  { value: 'Michigan', label: 'Detroit Metro Area' },
 ]
 
 /* ------------------------------------------------------------------ */
@@ -195,12 +195,14 @@ export default function Hero({ ready }) {
         </motion.p>
 
         <motion.div className="hero-ctas" {...fade(0.76)}>
-          <Magnetic href="#projects" className="btn btn-primary" data-cursor="open">
-            Explore the system <span className="arrow">→</span>
+          <Magnetic href="#experience" className="btn btn-primary" data-cursor="open">
+            View experience <span className="arrow">→</span>
           </Magnetic>
-          <Magnetic href={PROFILE.resume} target="_blank" rel="noreferrer" className="btn btn-ghost" data-cursor="open">
-            View résumé
-          </Magnetic>
+          {PROFILE.resume && (
+            <Magnetic href={PROFILE.resume} target="_blank" rel="noreferrer" className="btn btn-ghost" data-cursor="open">
+              View résumé
+            </Magnetic>
+          )}
           <Magnetic href={PROFILE.github} target="_blank" rel="noreferrer" className="btn btn-ghost" data-cursor="open">
             GitHub
           </Magnetic>
@@ -223,7 +225,7 @@ export default function Hero({ ready }) {
 
       <motion.div className="hero-telemetry mono" aria-hidden="true" {...fade(1.4)}>
         <span>sys · online</span>
-        <span>detroit, mi · 42.36°n / 83.07°w</span>
+        <span>detroit metro area · michigan</span>
       </motion.div>
     </header>
   )

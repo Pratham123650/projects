@@ -65,6 +65,23 @@ function Instance({ p }) {
         </div>
 
         <div className="proj-links">
+          <a
+            href={`#/projects/${p.id}`}
+            className="btn btn-primary proj-case-link"
+            data-cursor="open"
+            aria-label={`View case study for ${p.title}`}
+          >
+            View case study <span className="arrow">→</span>
+          </a>
+          {p.id === 'homelab' && (
+            <a
+              href="#/projects/homelab?section=architecture"
+              className="u-link"
+              data-cursor="open"
+            >
+              View architecture
+            </a>
+          )}
           {p.links.map((l) => (
             <a
               key={l.label}
@@ -103,8 +120,8 @@ export default function Projects() {
             <span className="section-eyebrow mono">Virtual infrastructure</span>
             <h2 className="section-title">Project <em>instances</em></h2>
             <p className="section-sub">
-              Every project runs as part of the same environment — physical hardware
-              underneath, virtual systems on top.
+              Technical work with implementation notes, challenges, architecture,
+              and clear places to add verified evidence.
             </p>
           </Reveal>
 

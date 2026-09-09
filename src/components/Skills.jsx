@@ -7,7 +7,7 @@ import {
   useReducedMotion,
 } from 'framer-motion'
 import Reveal from './Reveal.jsx'
-import { SKILL_CATEGORIES } from '../data/content.js'
+import { SKILL_CATEGORIES, getSkillEvidence } from '../data/content.js'
 
 /*
  * Skills as a network architecture map.
@@ -125,8 +125,28 @@ export default function Skills() {
                   <span className="nm-panel-status"><i /> LINK ACTIVE</span>
                 </div>
                 <p>{activeCat.usage}</p>
-                <div className="nm-panel-tags">
-                  {activeCat.tech.map((t) => <span className="tag" key={t}>{t}</span>)}
+                <div className="nm-evidence-list">
+                  {activeCat.tech.map((technology) => {
+                    const evidence = getSkillEvidence(technology)
+                    return (
+                      <div className="nm-evidence-row" key={technology}>
+                        <span className="tag nm-skill-tag">{technology}</span>
+                        <span className="mono nm-used-label">USED IN</span>
+                        <span className="nm-evidence-links">
+                          {evidence.map((item) => (
+                            <a
+                              key={`${item.type}-${item.label}`}
+                              href={item.href}
+                              className="u-link"
+                              data-cursor="open"
+                            >
+                              {item.label}
+                            </a>
+                          ))}
+                        </span>
+                      </div>
+                    )
+                  })}
                 </div>
               </motion.div>
             ) : (

@@ -56,11 +56,26 @@ export default function Experience() {
                     <div className="log-org">{item.company}</div>
                   </div>
 
-                  <ul className="log-lines">
-                    {item.bullets.map((b) => (
-                      <li key={b}><span className="mono log-caret">▸</span>{b}</li>
-                    ))}
-                  </ul>
+                  {item.areas ? (
+                    <div className="log-areas">
+                      {item.areas.map((area) => (
+                        <section className="log-area" key={area.label} aria-label={area.label}>
+                          <h4 className="mono">{area.label}</h4>
+                          <ul className="log-lines">
+                            {area.details.map((detail) => (
+                              <li key={detail}><span className="mono log-caret">▸</span>{detail}</li>
+                            ))}
+                          </ul>
+                        </section>
+                      ))}
+                    </div>
+                  ) : (
+                    <ul className="log-lines">
+                      {item.bullets.map((b) => (
+                        <li key={b}><span className="mono log-caret">▸</span>{b}</li>
+                      ))}
+                    </ul>
+                  )}
 
                   <div className="log-tools">
                     <span className="mono log-tools-label">TOOLS</span>
@@ -78,11 +93,13 @@ export default function Experience() {
           ))}
         </div>
 
-        <Reveal className="experience-cta">
-          <Magnetic href={PROFILE.resume} target="_blank" rel="noreferrer" className="btn btn-primary" data-cursor="open">
-            View résumé PDF <span className="arrow">→</span>
-          </Magnetic>
-        </Reveal>
+        {PROFILE.resume && (
+          <Reveal className="experience-cta">
+            <Magnetic href={PROFILE.resume} target="_blank" rel="noreferrer" className="btn btn-primary" data-cursor="open">
+              View résumé PDF <span className="arrow">→</span>
+            </Magnetic>
+          </Reveal>
+        )}
       </div>
     </section>
   )

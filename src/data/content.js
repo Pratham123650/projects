@@ -10,7 +10,7 @@ export const PROFILE = {
   tagline: 'Systems • Networks • Automation',
   role: 'Information Technology Student',
   school: 'Wayne State University',
-  location: 'Detroit Metro, Michigan',
+  location: 'Detroit Metro Area, Michigan',
   degree: 'B.S. Information Technology',
   minor: 'Business Administration',
   graduation: 'December 2027',
@@ -21,7 +21,8 @@ export const PROFILE = {
   githubLabel: 'github.com/Pratham123650',
   linkedin: 'https://www.linkedin.com/in/prathampatelit/',
   linkedinLabel: 'linkedin.com/in/prathampatelit',
-  resume: '/resume.pdf',
+  /* Add /public/resume.pdf, then set this to '/resume.pdf' to show résumé actions. */
+  resume: null,
   intro:
     'I learn infrastructure by building it — a Proxmox homelab, core network services, and hands-on systems work, on the path toward a career in IT systems.',
   about1:
@@ -36,10 +37,10 @@ export const FORM_ENDPOINT = ''
 
 export const NAV_LINKS = [
   { id: 'about', label: 'About' },
-  { id: 'skills', label: 'Skills' },
-  { id: 'homelab', label: 'Homelab' },
-  { id: 'projects', label: 'Projects' },
   { id: 'experience', label: 'Experience' },
+  { id: 'projects', label: 'Projects' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'education', label: 'Education' },
   { id: 'contact', label: 'Contact' },
 ]
 
@@ -50,7 +51,7 @@ export const SKILL_CATEGORIES = [
     id: 'systems',
     label: 'Systems',
     x: 20, y: 20,
-    tech: ['Windows Server', 'Active Directory', 'Linux', 'Proxmox', 'SCCM', 'VirtualBox'],
+    tech: ['Windows Server', 'Active Directory', 'Linux', 'Proxmox'],
     usage:
       'I run Windows Server and Linux VMs on my Proxmox host, manage Active Directory in my lab, and worked hands-on with Windows and iOS devices as an IT Intern at Edward Rose & Sons.',
   },
@@ -74,15 +75,15 @@ export const SKILL_CATEGORIES = [
     id: 'automation',
     label: 'Automation',
     x: 68, y: 88,
-    tech: ['Docker', 'Ansible', 'Python'],
+    tech: ['Docker', 'Ansible'],
     usage:
-      'I have explored Docker and Ansible for automating server setup in my homelab, alongside Python for scripting.',
+      'I have explored Docker and Ansible for automation and repeatable server setup in my homelab.',
   },
   {
     id: 'development',
     label: 'Development',
     x: 28, y: 88,
-    tech: ['Java', 'JavaFX', 'Python', 'MySQL', 'GitHub'],
+    tech: ['Java', 'JavaFX', 'MySQL'],
     usage:
       'I built course-based Java applications involving data structures, file handling, and JavaFX interfaces, and configured MySQL in systems labs.',
   },
@@ -90,7 +91,7 @@ export const SKILL_CATEGORIES = [
     id: 'hardware',
     label: 'Hardware',
     x: 9, y: 58,
-    tech: ['Homelab Hardware', 'Deployment', 'Troubleshooting'],
+    tech: ['Hardware', 'Device Deployment', 'Troubleshooting'],
     usage:
       'I built and maintain the hardware behind my homelab, and installed, replaced, and troubleshot hardware on company equipment during my IT internship.',
   },
@@ -169,10 +170,43 @@ export const PROJECTS = [
     challenge: 'Getting multiple operating systems, services, and the network configuration to work together reliably on one host.',
     learned: 'How virtualization, networking, and system administration fit together in practice.',
     tags: ['Proxmox', 'Linux', 'Windows Server', 'Pi-hole', 'WireGuard'],
-    links: [
-      { label: 'GitHub', href: 'https://github.com/Pratham123650' },
-      { label: 'Virtualization sequence', href: '#virtualization', internal: true },
+    technologies: [
+      'Proxmox', 'Linux', 'Ubuntu', 'Windows Server', 'Active Directory',
+      'AD Access Control', 'TCP/IP', 'DNS', 'DHCP', 'UniFi', 'Pi-hole',
+      'WireGuard', 'Docker', 'Ansible', 'Hardware',
     ],
+    overview:
+      'An always-on home lab built around a Proxmox host, managed UniFi networking, Ubuntu and Windows Server virtual machines, and core network services.',
+    goal:
+      'Create a safe environment for building, breaking, and rebuilding infrastructure while learning how virtualization, operating systems, identity, DNS, remote access, and networking work together.',
+    implementation: [
+      'Built and continue to manage the physical host and Proxmox virtualization environment.',
+      'Run Ubuntu and Windows Server guests for systems administration practice.',
+      'Configured Active Directory, user accounts, DNS, DHCP, and other core network services.',
+      'Run Pi-hole for network-wide DNS filtering, WireGuard for secure remote access, and UniFi for managed networking.',
+      'Explored Docker and Ansible for containerized services and repeatable server setup.',
+    ],
+    challenges: [
+      'Coordinating multiple operating systems, services, and network settings on one host.',
+      'Understanding service dependencies when DNS, routing, authentication, or a guest system is unavailable.',
+    ],
+    solutions: [
+      'Used the lab as a controlled environment to isolate layers, verify dependencies, and rebuild systems safely.',
+      'Detailed troubleshooting record pending — add a real incident, diagnostic steps, and resolution here.',
+    ],
+    lessons: [
+      'How physical hardware becomes virtual infrastructure through a hypervisor.',
+      'How DNS, routing, remote access, identity, and server administration affect one another.',
+      'Why recoverability and methodical troubleshooting matter in an always-on environment.',
+    ],
+    evidence: [
+      { id: 'proxmox-dashboard', title: 'Proxmox dashboard', caption: 'Host and guest overview', description: 'Add a sanitized dashboard capture showing the Proxmox host and virtual guests. Hide hostnames, addresses, storage details, and user information.', technology: 'Proxmox' },
+      { id: 'unifi-dashboard', title: 'UniFi dashboard', caption: 'Managed network overview', description: 'Add a sanitized view that demonstrates gateway or switching management without exposing device names, addresses, or location details.', technology: 'UniFi' },
+      { id: 'active-directory', title: 'Active Directory', caption: 'Identity and account administration', description: 'Add a sanitized view of the lab directory structure or administration console. Remove names, domains, and identifiers.', technology: 'Active Directory' },
+      { id: 'pihole', title: 'Pi-hole dashboard', caption: 'DNS filtering in operation', description: 'Add a sanitized dashboard capture that demonstrates DNS filtering. Remove client addresses, domains, and query details.', technology: 'Pi-hole' },
+      { id: 'automation', title: 'Automation workspace', caption: 'Docker or Ansible evidence', description: 'Add a terminal or configuration screenshot showing a real Docker or Ansible task after removing secrets, paths, hostnames, and inventory details.', technology: 'Automation' },
+    ],
+    links: [{ label: 'GitHub profile', href: 'https://github.com/Pratham123650' }],
   },
   {
     id: 'java',
@@ -183,7 +217,26 @@ export const PROJECTS = [
     challenge: 'Structuring programs around the right data structures and clean file handling.',
     learned: 'Development fundamentals — from program design through building working interfaces.',
     tags: ['Java', 'Data Structures', 'JavaFX'],
-    links: [{ label: 'View on GitHub', href: 'https://github.com/Pratham123650' }],
+    technologies: ['Java', 'JavaFX', 'Data Structures', 'File Handling'],
+    overview:
+      'A group of course-based Java applications focused on data structures, file handling, and practical desktop interfaces.',
+    goal:
+      'Turn classroom programming concepts into working applications with understandable structure and usable interfaces.',
+    implementation: [
+      'Built Java applications that organize data, read and write files, and present functionality through JavaFX interfaces.',
+      'Applied program design and data-structure choices to practical course assignments.',
+    ],
+    challenges: ['Choosing structures that keep application data and file operations understandable.'],
+    solutions: ['Detailed troubleshooting record pending — add a real bug, investigation, and fix here.'],
+    lessons: ['Program structure, data handling, and the process of moving from a requirement to a working interface.'],
+    evidence: [
+      { id: 'java-ui', title: 'JavaFX application', caption: 'Working application interface', description: 'Add a screenshot of a completed JavaFX interface and note which requirement or workflow it demonstrates.', technology: 'JavaFX' },
+      { id: 'java-code', title: 'Data and file handling', caption: 'Implementation evidence', description: 'Add a focused, readable code or output capture that demonstrates a real data-structure or file-handling decision.', technology: 'Java' },
+    ],
+    links: [
+      { label: 'Library application', href: 'https://github.com/Pratham123650/Library-Management-Application' },
+      { label: 'Text file analyzer', href: 'https://github.com/Pratham123650/Text-File-Analyzer' },
+    ],
   },
   {
     id: 'labs',
@@ -194,6 +247,23 @@ export const PROJECTS = [
     challenge: 'Making interdependent services resolve, route, and authenticate correctly together.',
     learned: 'How core network services underpin everything else that runs on a network.',
     tags: ['Networking', 'Windows Server', 'Active Directory', 'MySQL'],
+    technologies: ['Networking', 'Windows Server', 'Active Directory', 'DNS', 'DHCP', 'Apache', 'MySQL'],
+    overview:
+      'Hands-on systems administration labs configuring DNS, DHCP, Active Directory, Apache, and MySQL.',
+    goal:
+      'Practice configuring the core services that allow systems to resolve names, receive network settings, authenticate users, and host applications.',
+    implementation: [
+      'Configured DNS and DHCP services in lab environments.',
+      'Configured Active Directory and Windows Server components.',
+      'Worked with Apache and MySQL as supporting application services.',
+    ],
+    challenges: ['Making interdependent services resolve, route, and authenticate correctly together.'],
+    solutions: ['Detailed troubleshooting record pending — add a verified lab issue, checks performed, and resolution here.'],
+    lessons: ['How core network and identity services support the applications and users that depend on them.'],
+    evidence: [
+      { id: 'systems-services', title: 'Systems lab services', caption: 'DNS, DHCP, or Active Directory configuration', description: 'Add a sanitized lab screenshot that shows a completed service configuration and explain what was verified.', technology: 'Windows Server' },
+      { id: 'web-database', title: 'Apache / MySQL lab', caption: 'Application service configuration', description: 'Add a screenshot or terminal output that demonstrates the configured service without exposing credentials or host details.', technology: 'MySQL' },
+    ],
     links: [{ label: 'GitHub profile', href: 'https://github.com/Pratham123650' }],
   },
 ]
@@ -202,7 +272,7 @@ export const PROJECTS = [
 export const EXPERIENCE = [
   {
     log: 'LOG_04',
-    status: 'ACTIVE',
+    status: 'COMPLETE',
     company: 'Edward Rose & Sons',
     position: 'IT Intern',
     meta: 'Bloomfield, MI · Jun — Aug 2026',
@@ -212,7 +282,24 @@ export const EXPERIENCE = [
       'Assisted with system migration and networking projects.',
       'Supported the enterprise support team with data gathering and report analysis.',
     ],
-    tools: ['Windows', 'iOS', 'Microsoft Office', 'Networking', 'Hardware'],
+    areas: [
+      {
+        label: 'End-user & device support',
+        details: [
+          'Troubleshot hardware and mobile devices and determined when equipment required replacement.',
+          'Installed and replaced hardware on company equipment and kept software and applications up to date.',
+        ],
+      },
+      {
+        label: 'Infrastructure project exposure',
+        details: ['Assisted with system migration and networking projects.'],
+      },
+      {
+        label: 'Enterprise support & reporting',
+        details: ['Supported the enterprise support team with data gathering and report analysis.'],
+      },
+    ],
+    tools: ['Windows', 'iOS', 'Microsoft Office', 'Networking', 'Hardware', 'Device Deployment', 'Troubleshooting'],
   },
   {
     log: 'LOG_03',
@@ -227,7 +314,7 @@ export const EXPERIENCE = [
       'Run Pi-hole, WireGuard, and UniFi networking as always-on services.',
       'Explored Docker and Ansible for automation and server setup.',
     ],
-    tools: ['Proxmox', 'Pi-hole', 'WireGuard', 'UniFi', 'Docker', 'Ansible'],
+    tools: ['Proxmox', 'Linux', 'Ubuntu', 'Windows Server', 'Active Directory', 'AD Access Control', 'TCP/IP', 'DNS', 'DHCP', 'Pi-hole', 'WireGuard', 'UniFi', 'Docker', 'Ansible'],
   },
   {
     log: 'LOG_02',
@@ -254,6 +341,55 @@ export const EXPERIENCE = [
     tools: ['Operations', 'Communication'],
   },
 ]
+
+/* ----------------------- Education / current work ----------------------- */
+export const EDUCATION = {
+  school: PROFILE.school,
+  degree: PROFILE.degree,
+  minor: PROFILE.minor,
+  gpa: PROFILE.gpa,
+  graduation: PROFILE.graduation,
+  location: 'Detroit, Michigan',
+}
+
+export const CURRENTLY_BUILDING = [
+  {
+    title: 'Home lab operations',
+    detail: 'Managing the Proxmox environment and its networking, identity, DNS, and remote-access services.',
+    technologies: ['Proxmox', 'Networking', 'Systems'],
+  },
+  {
+    title: 'Infrastructure automation',
+    detail: 'Exploring Docker and Ansible for containerized services and repeatable server setup.',
+    technologies: ['Docker', 'Ansible'],
+  },
+]
+
+/* Keep this empty until a completed certification is explicitly added. */
+export const CERTIFICATIONS = []
+
+const normalized = (value) => value.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+export function getSkillEvidence(skill) {
+  const key = normalized(skill)
+  const projectEvidence = PROJECTS.filter((project) =>
+    project.technologies.some((technology) => normalized(technology) === key),
+  ).map((project) => ({
+    type: 'Project',
+    label: project.title,
+    href: `#/projects/${project.id}`,
+  }))
+
+  const experienceEvidence = EXPERIENCE.filter((entry) =>
+    entry.tools.some((tool) => normalized(tool) === key),
+  ).map((entry) => ({
+    type: 'Experience',
+    label: entry.company,
+    href: '#experience',
+  }))
+
+  return [...projectEvidence, ...experienceEvidence]
+}
 
 /* --------------------------- Boot sequence ---------------------------- */
 export const BOOT_LINES = [

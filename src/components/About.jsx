@@ -8,7 +8,7 @@ const ROWS = [
   ['ROLE', `${PROFILE.role} — ${PROFILE.school}`],
   ['DEGREE', `${PROFILE.degree} · Minor: ${PROFILE.minor}`],
   ['GPA', PROFILE.gpa],
-  ['GRADUATION', PROFILE.graduation],
+  ['GRADUATION', `Expected Graduation · ${PROFILE.graduation}`],
   ['LOCATION', PROFILE.location],
   ['FOCUS', 'Systems / Networks / Automation'],
 ]
