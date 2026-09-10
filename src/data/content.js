@@ -21,8 +21,7 @@ export const PROFILE = {
   githubLabel: 'github.com/Pratham123650',
   linkedin: 'https://www.linkedin.com/in/prathampatelit/',
   linkedinLabel: 'linkedin.com/in/prathampatelit',
-  /* Add /public/resume.pdf, then set this to '/resume.pdf' to show résumé actions. */
-  resume: null,
+  resume: '/resume.pdf',
   intro:
     'I learn infrastructure by building it — a Proxmox homelab, core network services, and hands-on systems work, on the path toward a career in IT systems.',
   about1:
