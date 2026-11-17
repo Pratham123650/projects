@@ -95,8 +95,8 @@ export default function Experience() {
 
         {PROFILE.resume && (
           <Reveal className="experience-cta">
-            <Magnetic href={PROFILE.resume} target="_blank" rel="noreferrer" className="btn btn-primary" data-cursor="open">
-              View résumé PDF <span className="arrow">→</span>
+            <Magnetic href={PROFILE.resume} download="Pratham-Patel-Resume.pdf" className="btn btn-primary" data-cursor="open">
+              Download résumé PDF <span className="arrow">↓</span>
             </Magnetic>
           </Reveal>
         )}

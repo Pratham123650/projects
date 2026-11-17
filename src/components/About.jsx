@@ -8,9 +8,9 @@ const ROWS = [
   ['ROLE', `${PROFILE.role} — ${PROFILE.school}`],
   ['DEGREE', `${PROFILE.degree} · Minor: ${PROFILE.minor}`],
   ['GPA', PROFILE.gpa],
-  ['GRADUATION', `Expected Graduation · ${PROFILE.graduation}`],
+  ['ENROLLMENT', PROFILE.educationPeriod],
   ['LOCATION', PROFILE.location],
-  ['FOCUS', 'Systems / Networks / Automation'],
+  ['FOCUS', 'Systems / Networking / Virtualization'],
 ]
 
 export default function About() {
@@ -26,8 +26,8 @@ export default function About() {
           <div>
             <Reveal>
               <p className="about-lede">
-                I learn infrastructure by <em>building it</em> — labs, coursework,
-                and hands-on projects.
+                Building hands-on experience in <em>systems administration</em>,
+                networking, and virtualization.
               </p>
             </Reveal>
             <Reveal delay={0.1}>

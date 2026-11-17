@@ -25,70 +25,54 @@ function DiagramNode({ node, active, onSelect }) {
 
 export default function ArchitectureDiagram() {
   const nodes = useMemo(() => {
-    const unifi = lookup('unifi')
     const proxmox = lookup('proxmox')
     const vms = lookup('vms')
-    const pihole = lookup('pihole')
-    const wireguard = lookup('wireguard')
+    const windowsServer = lookup('windows-server')
+    const directoryServices = lookup('directory-services')
+    const networkServices = lookup('network-services')
 
     return {
       route: [
         {
-          id: 'internet',
-          layer: 'EDGE',
-          label: 'Internet',
-          kind: 'External network',
-          what: 'The external boundary of the lab. Administrative services are not presented here as public endpoints.',
-          tech: ['Network boundary'],
+          id: 'physical-host',
+          layer: 'HARDWARE',
+          label: 'Physical Host',
+          kind: 'Lab hardware',
+          what: 'The physical system provides the compute resources for the Proxmox VE environment.',
+          tech: ['Hardware'],
         },
-        { ...unifi, layer: 'GATEWAY' },
+        { ...proxmox, layer: 'HYPERVISOR' },
         {
-          id: 'lan',
+          id: 'virtual-network',
           layer: 'NETWORK',
-          label: 'Internal Network',
-          kind: 'Managed lab traffic',
-          what: 'The internal path connecting the gateway, virtualization host, guests, and supporting services. Exact addressing is intentionally omitted.',
-          tech: ['TCP/IP', 'DNS', 'DHCP'],
+          label: 'Virtual Network',
+          kind: 'Guest connectivity',
+          what: 'The virtual network connects the Ubuntu Linux and Windows Server guests with the lab services they use.',
+          tech: ['Network Configuration', 'TCP/IP'],
         },
-        { ...proxmox, layer: 'COMPUTE' },
+        { ...vms, layer: 'GUESTS' },
       ],
       workloads: [
-        {
-          id: 'windows-vm',
-          layer: 'GUEST',
-          label: 'Windows Server VM',
-          kind: 'Identity / systems lab',
-          what: vms.what,
-          learned: vms.learned,
-          tech: ['Windows Server', 'Active Directory'],
-        },
+        { ...windowsServer, id: 'windows-vm', layer: 'GUEST' },
         {
           id: 'ubuntu-vm',
           layer: 'GUEST',
           label: 'Ubuntu VM',
           kind: 'Linux systems lab',
-          what: vms.what,
-          learned: vms.learned,
-          tech: ['Ubuntu', 'Linux'],
+          what: 'Ubuntu Linux virtual machines run inside the Proxmox VE environment.',
+          learned: 'Linux administration, virtual machine management, and technical troubleshooting.',
+          tech: ['Ubuntu Linux', 'Linux'],
         },
       ],
       services: [
-        { ...pihole, layer: 'SERVICE' },
-        { ...wireguard, layer: 'REMOTE' },
-        {
-          id: 'active-directory',
-          layer: 'SERVICE',
-          label: 'Active Directory',
-          kind: 'Accounts / access',
-          what: 'Directory services configured in the Windows Server lab for user accounts and access administration.',
-          learned: vms.learned,
-          tech: ['Active Directory', 'Windows Server'],
-        },
+        { ...directoryServices, layer: 'IDENTITY' },
+        { ...networkServices, id: 'dns', layer: 'SERVICE', label: 'DNS', kind: 'Name resolution', tech: ['DNS', 'Windows Server'] },
+        { ...networkServices, id: 'dhcp', layer: 'SERVICE', label: 'DHCP', kind: 'Network configuration', tech: ['DHCP', 'Windows Server'] },
       ],
     }
   }, [])
 
-  const [selected, setSelected] = useState(nodes.route[3])
+  const [selected, setSelected] = useState(nodes.route[1])
 
   return (
     <div className="architecture-shell">

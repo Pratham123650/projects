@@ -12,21 +12,26 @@ export default function Education() {
           </Reveal>
         </div>
 
-        <Reveal delay={0.08}>
-          <article className="card education-card" data-sv="EDUCATION_NODE">
-            <div className="education-main">
-              <span className="mono education-status"><i /> ENROLLED</span>
-              <h3>{EDUCATION.degree}</h3>
-              <p>{EDUCATION.school}</p>
-              <span>{EDUCATION.location}</span>
-            </div>
-            <dl className="education-facts">
-              <div><dt className="mono">EXPECTED GRADUATION</dt><dd>Expected Graduation · {EDUCATION.graduation}</dd></div>
-              <div><dt className="mono">MINOR</dt><dd>{EDUCATION.minor}</dd></div>
-              <div><dt className="mono">GPA</dt><dd>{EDUCATION.gpa}</dd></div>
-            </dl>
-          </article>
-        </Reveal>
+        <div className="education-list">
+          {EDUCATION.map((record, index) => (
+            <Reveal delay={0.08 + index * 0.06} key={record.school}>
+              <article className="card education-card" data-sv="EDUCATION_NODE">
+                <div className="education-main">
+                  <span className="mono education-status"><i /> {record.status}</span>
+                  <h3>{record.degree}</h3>
+                  <p>{record.school}</p>
+                  <span>{record.location}</span>
+                </div>
+                <dl className="education-facts">
+                  <div><dt className="mono">ATTENDANCE</dt><dd>{record.period}</dd></div>
+                  {record.minor && <div><dt className="mono">MINOR</dt><dd>{record.minor}</dd></div>}
+                  {record.gpa && <div><dt className="mono">GPA</dt><dd>{record.gpa}</dd></div>}
+                  <div><dt className="mono">COURSEWORK</dt><dd>{record.coursework}</dd></div>
+                </dl>
+              </article>
+            </Reveal>
+          ))}
+        </div>
       </div>
     </section>
   )

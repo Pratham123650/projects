@@ -19,22 +19,22 @@ import { PROJECTS } from '../data/content.js'
  */
 
 const CAPTIONS = [
-  ['01', 'PHYSICAL HARDWARE', 'One mini PC. This is where everything runs.'],
-  ['02', 'CASE DECONSTRUCTION', 'The case opens — nothing magic inside, just parts.'],
+  ['01', 'PHYSICAL HARDWARE', 'The physical host provides the lab\'s compute resources.'],
+  ['02', 'CASE DECONSTRUCTION', 'The case opens to show the system components.'],
   ['03', 'COMPONENT IDENTIFICATION', 'CPU, memory, storage, network. The raw resources.'],
   ['04', 'NETWORK ACTIVATION', 'A cable, a link light, and the packet finds the host.'],
   ['05', 'VIRTUALIZATION', 'Proxmox slices one machine into many.'],
-  ['06', 'SERVICE ACTIVATION', 'Pi-hole and WireGuard come online across the layers.'],
+  ['06', 'SERVICE ACTIVATION', 'AD DS, DNS, and DHCP come online across the layers.'],
   ['07', 'COMPLETE INFRASTRUCTURE', 'Physical hardware, now a virtual environment.'],
 ]
 
 const CABLE = 'M 12 150 C 60 150, 60 96, 118 92'
 
 const LAYERS = [
-  { id: 'host', label: 'PROXMOX HOST', chips: [] },
-  { id: 'net', label: 'NETWORK LAYER', chips: ['DNS', 'DHCP', 'VPN'] },
-  { id: 'vm', label: 'VIRTUAL MACHINE LAYER', chips: ['VM 01', 'VM 02', 'VM 03'] },
-  { id: 'svc', label: 'SERVICES', chips: ['PI-HOLE', 'WIREGUARD'] },
+  { id: 'host', label: 'PROXMOX VE HOST', chips: [] },
+  { id: 'net', label: 'NETWORK SERVICES', chips: ['DNS', 'DHCP'] },
+  { id: 'vm', label: 'VIRTUAL MACHINE LAYER', chips: ['UBUNTU', 'WINDOWS SERVER'] },
+  { id: 'svc', label: 'DIRECTORY SERVICES', chips: ['AD DS', 'USER POLICIES'] },
 ]
 
 const featured = PROJECTS.find((p) => p.featured)

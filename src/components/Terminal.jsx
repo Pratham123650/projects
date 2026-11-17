@@ -31,7 +31,7 @@ function runCommand(raw, { scrollTo }) {
       return [
         `${PROFILE.name} — ${PROFILE.role}`,
         `${PROFILE.school} · ${PROFILE.degree} (minor: ${PROFILE.minor})`,
-        `GPA ${PROFILE.gpa} · graduating ${PROFILE.graduation}`,
+        `GPA ${PROFILE.gpa} · ${PROFILE.educationPeriod}`,
         `Focus: systems, networking, virtualization, homelab infrastructure.`,
       ]
     case 'skills':

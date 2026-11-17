@@ -107,7 +107,7 @@ export default function Nav() {
               <a
                 href={PROFILE.resume}
                 target="_blank"
-                rel="noreferrer"
+                rel="noopener noreferrer"
                 className="btn btn-primary nav-cta"
                 data-cursor="open"
               >
@@ -142,7 +142,7 @@ export default function Nav() {
               </a>
             ))}
             {PROFILE.resume && (
-              <a href={PROFILE.resume} target="_blank" rel="noreferrer" onClick={close}>Resume</a>
+              <a href={PROFILE.resume} target="_blank" rel="noopener noreferrer" onClick={close}>Resume</a>
             )}
             <div className="nav-mobile-tools">
               <button

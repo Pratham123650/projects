@@ -12,8 +12,8 @@ import { PROFILE } from '../data/content.js'
 
 const STATS = [
   { value: PROFILE.gpa, label: 'GPA · Wayne State' },
-  { value: PROFILE.graduation, label: 'Expected graduation' },
-  { value: 'Michigan', label: 'Detroit Metro Area' },
+  { value: PROFILE.educationPeriod, label: 'Wayne State enrollment' },
+  { value: PROFILE.location, label: 'Location' },
 ]
 
 /* ------------------------------------------------------------------ */
@@ -172,7 +172,7 @@ export default function Hero({ ready }) {
       >
         <motion.div {...fade(0.1)}>
           <span className="hero-availability">
-            <i /> Open to IT &amp; systems opportunities
+            <i /> Seeking an IT internship
           </span>
         </motion.div>
 
@@ -199,7 +199,7 @@ export default function Hero({ ready }) {
             View experience <span className="arrow">→</span>
           </Magnetic>
           {PROFILE.resume && (
-            <Magnetic href={PROFILE.resume} target="_blank" rel="noreferrer" className="btn btn-ghost" data-cursor="open">
+            <Magnetic href={PROFILE.resume} target="_blank" rel="noopener noreferrer" className="btn btn-ghost" data-cursor="open">
               View résumé
             </Magnetic>
           )}
@@ -225,7 +225,7 @@ export default function Hero({ ready }) {
 
       <motion.div className="hero-telemetry mono" aria-hidden="true" {...fade(1.4)}>
         <span>sys · online</span>
-        <span>detroit metro area · michigan</span>
+        <span>{PROFILE.location.toLowerCase()}</span>
       </motion.div>
     </header>
   )

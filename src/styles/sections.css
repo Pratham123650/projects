@@ -607,6 +607,7 @@
 .log-area .log-lines li { font-size: 0.86rem; }
 
 /* Education and current activity ------------------------------------------ */
+.education-list { display: grid; gap: 1rem; }
 .education-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);

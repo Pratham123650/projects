@@ -46,8 +46,8 @@ export default function Homelab() {
             <span className="section-eyebrow mono">Physical infrastructure</span>
             <h2 className="section-title">The <em>homelab</em></h2>
             <p className="section-sub">
-              Real hardware, always on. Select a device to connect to it and see
-              what it runs, why I built it, and what it taught me.
+              A Proxmox VE environment for Ubuntu Linux and Windows Server virtual
+              machines. Select a unit to inspect its role in the lab.
             </p>
           </Reveal>
         </div>
